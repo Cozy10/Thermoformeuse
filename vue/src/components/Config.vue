@@ -29,12 +29,27 @@
         v-model="selected"
         item-key="name"
         :headers="headers"
-        :items="desserts"
+        :items="config"
         :search="search"
         :single-select="false"
         show-select
       >
       </v-data-table>
+      <template v-slot:item.action="{ item }">
+        <v-icon
+          small
+          class="mr-2"
+          @click="editItem(item)"
+        >
+          edit
+        </v-icon>
+        <v-icon
+          small
+          @click="deleteItem(item)"
+        >
+          delete
+        </v-icon>
+      </template>
     </v-card>
   </template>
   </v-container>
@@ -42,8 +57,7 @@
 
 <script>
   export default {
-    data () {
-      return {
+    data: () => ({
         selected: [],
         search: '',
         headers: [
@@ -58,7 +72,7 @@
             { text: 'T5', value: 't5'},
             { text: 'T6', value: 't6'},
           ],
-          desserts: [
+          config: [
             {
               name: 'Pyrénés',
               t1: 200,
@@ -96,7 +110,23 @@
               t6: 210
             },
           ],
-      }
-    },
+      }),
+      methods: {
+        changeData() {
+          this.config
+          .push({
+            name: 'trolol',
+            t1: 200,
+            t2: 210,
+            t3: 200,
+            t4: 220,
+            t5: 230,
+            t6: 190
+          });
+        }
+      },
+      mounted() {
+        setTimeout(this.changeData, 2000);
+      },
   }
 </script>

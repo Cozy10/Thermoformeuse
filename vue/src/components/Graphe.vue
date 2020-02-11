@@ -1,7 +1,6 @@
 <template>
   <svg width="500" height="270">
     <g style="transform: translate(0, 10px)">
-      <path :d="line" />
     </g>
   </svg>
 </template>
@@ -11,13 +10,32 @@ import * as d3 from 'd3';
 export default {
   name: 'vue-line-chart',
   data: () => ({
-      // data: [99, 71, 78, 25, 36, 92],
+      data: [140, 108, 2800, 170, 230, 242],
+      timer: undefined
       // line: '',
     }),
   mounted() {
-    this.calculatePath();
+    this.createGraph();
+    this.timer = setInterval(this.changeData, 1000);
+  },
+  destroyed: function(){
+    clearInterval(this.timer);
+  },
+  watch:{
+    data: function(){
+      console.log('a');
+      // this.createGraph();
+    },
   },
   methods: {
+    changeData(){
+      console.log(this.data);
+      // for (let i = 0; i<this.data.length; i++){
+      //   this.data[i] = Math.floor((Math.random() * 100) + 100);
+      // }
+      this.data = [Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100)];
+
+    },
     getScales() {
       const x = d3.scaleTime().range([0, 430]);
       const y = d3.scaleLinear().range([210, 0]);
@@ -27,16 +45,14 @@ export default {
       y.domain([0, d3.max(this.data, d => d)]);
       return { x, y };
     },
-    calculatePath() {
-      var data = [140, 108, 2800, 170, 230, 242];
-
+    createGraph() {
       var Largeur_graphe = 500, Hauteur_graphe = 400, Espacement_barres = 10;
-      var Largeur_barres = (Largeur_graphe / data.length);
+      var Largeur_barres = (Largeur_graphe / this.data.length);
 
       var margeX = 20;
       // var margeY = 10;
 
-      var AxeY = d3.scaleLinear().domain(data).range([0,Hauteur_graphe]);
+      var AxeY = d3.scaleLinear().domain(this.data).range([0,Hauteur_graphe]);
 
       var AxeX = d3.scalePoint().domain(["Zone 1","Zone 2","Zone 3","Zone 4","Zone 5","Zone 6"])
                                 .range([0,Largeur_graphe])
@@ -56,7 +72,7 @@ export default {
 
 
       svg.selectAll("rect")
-          .data(data)
+          .data(this.data)
           .enter()
           .append("rect")
           .attr("fill", function(d) {
