@@ -1,7 +1,5 @@
 <template>
-  <svg width="500" height="270">
-    <g style="transform: translate(0, 10px)">
-    </g>
+  <svg>
   </svg>
 </template>
 
@@ -10,13 +8,33 @@ import * as d3 from 'd3';
 export default {
   name: 'vue-line-chart',
   data: () => ({
-      data: [140, 108, 2800, 170, 230, 242],
-      timer: undefined
+      data: [300, 108, 280, 170, 230, 242],
+      timer: undefined,
+      nb_zones: undefined,
+      temp_seuils: [300, 200, 300, 300, 300, 250],
+      margeX: 30,
+      margeY: 20,
+      Largeur_graphe: undefined,
+      Hauteur_graphe: undefined,
+      Espacement_barres: 10,
+      Largeur_barres: undefined,
+      tab_zones: undefined,
+      AxeX: undefined,
+      AxeY: undefined,
+      svg: undefined,
+      temp_ok: undefined,
+      temp_pas_ok: undefined,
       // line: '',
     }),
   mounted() {
+    this.nb_zones = this.data.length;
+    this.Largeur_graphe = this.nb_zones*100 + this.margeX;
+    this.Hauteur_graphe = d3.max(this.temp_seuils) + 100;
+    console.log("a");
+    this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
+    this.tab_zones = this.creer_tab_zones();
     this.createGraph();
-    this.timer = setInterval(this.changeData, 1000);
+    // this.timer = setInterval(this.changeData, 1000);
   },
   destroyed: function(){
     clearInterval(this.timer);
@@ -36,72 +54,111 @@ export default {
       this.data = [Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100),Math.floor((Math.random() * 200) + 100)];
 
     },
-    getScales() {
-      const x = d3.scaleTime().range([0, 430]);
-      const y = d3.scaleLinear().range([210, 0]);
-      d3.axisLeft().scale(x);
-      d3.axisBottom().scale(y);
-      x.domain(d3.extent(this.data, (d, i) => i));
-      y.domain([0, d3.max(this.data, d => d)]);
-      return { x, y };
+    creer_tab_zones(){
+      var tab = [];
+      for(var i = 1; i <= this.nb_zones; i++){
+        tab.push("zone " + i);
+      }
+      return tab;
     },
-    createGraph() {
-      var Largeur_graphe = 500, Hauteur_graphe = 400, Espacement_barres = 10;
-      var Largeur_barres = (Largeur_graphe / this.data.length);
+    createGraph(){
+      var svg = this.svg;
+      var Largeur_barres = this.Largeur_barres;
+      var Largeur_graphe = this.Largeur_graphe;
+      var margeX = this.margeX;
+      var Hauteur_graphe = this.Hauteur_graphe;
+      var margeY = this.margeY;
+      var AxeX = this.AxeX;
+      var AxeY = this.AxeY;
+      var Espacement_barres = this.Espacement_barres;
 
-      var margeX = 20;
-      // var margeY = 10;
-
-      var AxeY = d3.scaleLinear().domain(this.data).range([0,Hauteur_graphe]);
-
-      var AxeX = d3.scalePoint().domain(["Zone 1","Zone 2","Zone 3","Zone 4","Zone 5","Zone 6"])
-                                .range([0,Largeur_graphe])
-                                .padding(.45);
+      AxeY = d3.scaleLinear()
+      .domain([Hauteur_graphe,0])
+      .range([0,Hauteur_graphe]);
 
 
-      /*FAUT QUE JE TROUVE LE MOYEN DE GÉNÉRER LA BALISE SVG DEPUIS LE JS (c'est un truc spécial apparemment)*/
-      /* C'est un début ...
-      var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      s.setAttribute("class", "chart");
-      s.innerHTML = data;
-      document.body.appendChild(s);*/
-
-      var svg = d3.select('svg')
-          .attr("width", Largeur_graphe)
+      AxeX = d3.scaleBand()
+          .domain(this.tab_zones)
+          .range([0,Largeur_graphe]);
+      svg = d3.select('svg')
+          .attr("width", Largeur_graphe+margeX)
           .attr("height", Hauteur_graphe);
-
-
-      svg.selectAll("rect")
-          .data(this.data)
-          .enter()
-          .append("rect")
-          .attr("fill", function(d) {
-            if (d <= 300) {
-              return "steelblue";
-            }
-            return "red";
-          })
-          .attr("y", function(d) {
-               return Hauteur_graphe - d;
-          })
-          .attr("height", function(d) {
-              return d - margeX;
-          })
-          .attr("width", Largeur_barres - Espacement_barres)
-          .attr("transform", function (d, i) {
-              var translate = [Largeur_barres * i, 0];
-              return "translate("+ translate +")";
-          });
-
-
+      this.temp_ok = this.temp_bleues();
+      this.temp_pas_ok = this.temp_rouges();
       svg
       .append("g")
+      .attr("transform", "translate("+margeX+","+ -margeY +")")
       .call(d3.axisLeft(AxeY));
 
       svg
       .append("g")
-      .attr("transform", "translate(0,"+(Hauteur_graphe-margeX)+")")
+      .attr("transform", "translate("+ margeX +","+(Hauteur_graphe-margeY)+")")
       .call(d3.axisBottom(AxeX));
+
+      svg.selectAll("rect")
+          .data(this.temp_pas_ok)
+          .enter()
+          .append("rect")
+          .attr("fill", "red")
+          .attr("y", function(d) {
+               return Hauteur_graphe - d;
+          })
+          .attr("x", function() {
+              return Espacement_barres;
+          })
+          .attr("height", function(d) {
+              return d;
+          })
+          .attr("width", Largeur_barres - Espacement_barres)
+          .attr("transform", function (d, i) {
+              var translate = [(Largeur_barres * i) + margeX, -margeY];
+              return "translate("+ translate +")";
+          });
+      console.log(this.temp_ok);
+
+      svg.selectAll("graphe_rouge")
+        .data(this.temp_ok)
+        .enter()
+        .append("rect")
+        .attr("fill", "steelblue")
+        .attr("y", function(d) {
+             return Hauteur_graphe - d;
+        })
+        .attr("x", function() {
+            return Espacement_barres;
+        })
+        .attr("height", function(d) {
+            return d;
+        })
+        .attr("width", Largeur_barres - Espacement_barres)
+        .attr("transform", function (d, i) {
+            var translate = [(Largeur_barres * i) + margeX, -margeY];
+            return "translate("+ translate +")";
+      });
+    },
+    temp_bleues(){
+    var tab = [];
+    for(var i = 0; i < this.nb_zones; i++){
+        if(this.data[i] <= this.temp_seuils[i]){
+            tab.push(this.data[i]);
+        }
+        else{
+            tab.push(this.temp_seuils[i]);
+        }
+    }
+    return tab;
+    },
+    temp_rouges(){
+      var tab = [];
+      for(var i = 0; i < this.nb_zones; i++){
+          if(this.data[i] > this.temp_seuils[i]){
+              tab.push(this.data[i]);
+          }
+          else{
+              tab.push(0);
+          }
+      }
+      return tab;
     },
   },
 };
