@@ -84,12 +84,12 @@ function setTemperatureThermo(zone){
 }
 
 function getStatutThermo(){
-    if (statut_thermo == 1) {
+    if (thermo.statut_thermo == 1) {
         console.log("Statut de la machine : Marche");
     } else {
         console.log("Statut de la machine : Stop");
     }
-    return statut_thermo;
+    return thermo.statut_thermo;
 }
 
 function startThermo(){
