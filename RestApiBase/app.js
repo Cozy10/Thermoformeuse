@@ -71,7 +71,7 @@ app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
 function getTemperatureThermo(){
     console.log("Récupération des valeurs de température des zones de chauffe")
-    return {"Z1":1, "Z2":2, "Z3":3, "Z4":4, "Z5":5, "Z6":6}
+    return [Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100)]
 }
 
 function getTemperatureAmbianteThermo(){
@@ -93,10 +93,10 @@ function getStatutThermo(){
 }
 
 function startThermo(){
-    statut_thermo = 1;
+    thermo.statut_thermo= 1;
     console.log("Démarrage de la thermo!!");
     setTimeout(()=>{
-        statut_thermo = 0;
+        thermo.statut_thermo = 0;
         console.log("Arrêt de la thermo!!");
     },30000)
 }

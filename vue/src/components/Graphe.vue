@@ -42,10 +42,7 @@ export default {
   },
   methods: {
     changeData(){
-      // console.log("ok");
-      // for (let i = 0; i<this.data.length; i++){
-      //   this.data[i] = Math.floor((Math.random() * 100) + 100);
-      // }
+      
       let data_to_send = {"type": "get"};
       let headers = {'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
@@ -61,7 +58,7 @@ export default {
       })
       .then(res=> res.json())
       .then(data => {
-        console.log(JSON.stringify(data));
+        this.data = data.data.zone_chauffe;
       });
 
 

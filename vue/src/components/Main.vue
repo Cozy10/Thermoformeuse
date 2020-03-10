@@ -20,7 +20,7 @@
       <v-col cols="2">
       </v-col>
       <v-col cols="3">
-        <v-btn dark x-large fab right color="green">
+        <v-btn dark x-large fab right color="green" @click="start()">
           <v-icon>mdi-play</v-icon>
         </v-btn>
       </v-col>
@@ -47,8 +47,60 @@
       Graphe,
     },
     data: () => ({
-      //
+      timer: undefined,
+      statut: "Arrêt",
     }
     ),
+    mounted() {
+      this.timer = setInterval(this.get_statut, 1000);
+    },
+    destroyed: function(){
+      clearInterval(this.timer);
+    },
+    methods:{
+      start(){
+        let data_to_send = {"type": "set"};
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000/start", {
+          method: 'post',
+          headers,
+          body: JSON.stringify(data_to_send)
+
+        })
+        .then(res=> res.json())
+        .then(data => {
+          console.log(JSON.stringify(data));
+          
+        });
+      },
+      get_statut(){
+        let data_to_send = {"type": "get"};
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000/statut", {
+          method: 'post',
+          headers,
+          body: JSON.stringify(data_to_send)
+
+        })
+        .then(res=> res.json())
+        .then(data => {
+          //console.log(JSON.stringify(data));
+          if(data.data.statut == 1)
+            this.statut = "En cours";
+          else 
+            this.statut = "Arrêt";
+        });
+      }
+    }
   }
 </script>
