@@ -18,7 +18,7 @@ export default {
       Hauteur_graphe: undefined,
       Espacement_barres: 10,
       Largeur_barres: undefined,
-      tab_zones: undefined,
+      tab_zones: ["Z1", "Z2", "Z3", "Z4", "Z5", "Z6"],
       // line: '',
     }),
   mounted() {
@@ -26,7 +26,7 @@ export default {
     this.Largeur_graphe = this.nb_zones*100 + this.margeX;
     this.Hauteur_graphe = d3.max(this.temp_seuils) + 100;
     this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
-    this.tab_zones = this.creer_tab_zones();
+    // this.tab_zones = this.creer_tab_zones();
     this.dessiner_histogramme();
     this.timer = setInterval(this.changeData, 1000);
   },
@@ -66,13 +66,6 @@ export default {
 
 
     },
-    creer_tab_zones(){
-      var tab = [];
-      for(var i = 1; i <= this.nb_zones; i++){
-        tab.push("zone " + i);
-      }
-      return tab;
-    },
     dessiner_histogramme(){
       var nb_zones = this.data.length;
       var margeX = this.margeX;
@@ -82,7 +75,7 @@ export default {
       var Espacement_barres = this.Espacement_barres;
       var Largeur_barres = (Largeur_graphe / nb_zones);
 
-      var tab_zones = this.creer_tab_zones();
+      var tab_zones = this.tab_zones;
 
       var AxeY = d3.scaleLinear()
           .domain([Hauteur_graphe,0])
