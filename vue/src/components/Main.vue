@@ -79,14 +79,14 @@
         });
       },
       get_statut(){
-        let data_to_send = {"type": "get"};
+        let data_to_send = ["get_statut"];
         let headers = {'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
               'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000/statut", {
+        fetch("http://localhost:3000", {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)
@@ -95,7 +95,7 @@
         .then(res=> res.json())
         .then(data => {
           console.log(JSON.stringify(data));
-          if(data.data.statut == 1)
+          if(data.statut == 1)
             this.statut = "En cours";
           else 
             this.statut = "Arrêt";
