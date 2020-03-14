@@ -94,7 +94,7 @@
         })
         .then(res=> res.json())
         .then(data => {
-          //console.log(JSON.stringify(data));
+          console.log(JSON.stringify(data));
           if(data.data.statut == 1)
             this.statut = "En cours";
           else 

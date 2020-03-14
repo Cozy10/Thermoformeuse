@@ -28,7 +28,7 @@ export default {
     this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
     // this.tab_zones = this.creer_tab_zones();
     this.dessiner_histogramme();
-    this.timer = setInterval(this.changeData, 1000);
+    this.timer = setInterval(this.changeData, 500);
   },
   destroyed: function(){
     clearInterval(this.timer);
