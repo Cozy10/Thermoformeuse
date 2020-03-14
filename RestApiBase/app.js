@@ -1,6 +1,7 @@
 let express = require('express')
 let bodyparser = require('body-parser')
 let cors = require('cors')
+let dao = require('./dao')
 
 
 let app = express()
@@ -9,64 +10,102 @@ let port = 3000
 let thermo = new Object();
 thermo.statut_thermo = 0;
 
-
 app.use(cors());
 app.use(bodyparser.urlencoded({extended:false}));
 app.use(bodyparser.json())
 
 
-app.post('/temperature', (req, res)=>{
-    let body = req.body;
-    let reponse = new  Object();
-    reponse.data = new Object();
-    if(body.type === "get"){
-        console.log("ok");
-        reponse.data.zone_chauffe = getTemperatureThermo();
-        reponse.data.ambiante = getTemperatureAmbianteThermo();
-        reponse.info = "Lorem ipsum...get OK!^^";
-        reponse.code = "100"; 
-    }
-    else if (body.type === "set"){
-        setTemperatureThermo(body.data.zone_chauffe);
-        reponse.info = "Lorem ipsum...set OK!^^";
-        reponse.code = "100"; 
-    }
-    res.json(reponse);
-})
 
-app.post('/statut', (req, res)=>{
+//Forme de la requete : ["methode": string, "data":Objet Json]
+//Forme de la reponse  : ["code":entier, "data":objet json", infos": string] 
+
+
+app.post('/', (req, res)=>{
     let body = req.body;
-    let reponse = new Object();
-    reponse.data = new Object();
-    if(body.type === "get")
-    {
+    let reponse = new Array(3);
+    reponse[1] = new Object();
+    if(body[0]=== "get_temperature"){
+        reponse[0] = "100"; 
+        reponse[1].zone_chauffe = getTemperatureThermo();
+        reponse[1].ambiante = getTemperatureAmbianteThermo();
+        reponse[2] = "Récuprations des températures!!!^^";
+        res.json(reponse);
+    }
+    else if (body[0] === "set_temperature"){
+        setTemperatureThermo(body[1].zone_chauffe);
+        reponse[0] = "100"; 
+        reponse[2] = "Modification des températures!^^";
+        res.json(reponse);
+
+    }
+    else if(body[0] === "get_statut"){
+        reponse[0] = "100";
+        reponse[1].statut = getStatutThermo();
+        reponse[2] = "Récupération du statut!^^";
+        res.json(reponse);
+
+         
+    }
+    else if(body[0] === "start"){
+        if (startThermo() == 1){
+            reponse[0] = "100";
+            reponse[2] = "La thermoformeuse a bien démarrée!!!^^";
+        }
+        else
+        {
+            reponse[0] = "100";
+            reponse[2] = "Un cycle est déja lancé, veuillez patienter la fin de celui-ci!!";
+        }
+        res.json(reponse);
+
         
-        reponse.data.statut = getStatutThermo();
-        reponse.info = "Lorem ipsum...statut OK!^^";
-        reponse.code = "100";
     }
-    res.json(reponse);
+    else if(body[0] === "get_all_log"){
+        dao.getAllLog().then(resulat => {
+            reponse[0] = "100";
+            reponse[1] = resulat;
+            reponse[2] = "Récupérations des logs";
+            res.json(reponse);
+        });        
+    }
+    else if(body[0] === "save_log"){
+
+        dao.saveLog(body[1].log).then(()=>{
+            reponse[0] = "100";
+            reponse[2] = "log sauvergardé";
+            res.json(reponse);
+        }); 
+
+    }
+    else if(body[0] === "get_all_configurations"){
+        dao.getAllConfiguration().then(resulat => {
+            reponse[0] = "100";
+            reponse[1] = resulat;
+            reponse[2] = "Récupérations des configurations!!";
+            res.json(reponse);
+        }); 
+
+    }
+    else if(body[0] === "save_configuration"){
+        dao.saveConfiguration(body[1].configuration).then(() => {
+            reponse[0] = "100";
+            reponse[2] = "configuration sauvergardé";
+            res.json(reponse);
+        }); 
+    }
+    else {
+        reponse[0] = "300";
+        reponse[2] = "Veuillez entrer dans le champ \"method\" une action valide !!!";
+        res.json(reponse);
+    }
+    
 })
 
-app.post('/start', (req, res)=>{
-    let body = req.body;
-    let reponse = new Object();
-    reponse.data = new Object();
-    if(body.type === "set")
-    {
-        startThermo();
-        reponse.info = "Lorem ipsum...start OK!^^";
-        reponse.code = "100";
-    }
-    res.json(reponse);
-
-})
 
 
 
 
 app.post('/preset')
-
 app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
 function getTemperatureThermo(){
@@ -76,7 +115,7 @@ function getTemperatureThermo(){
 
 function getTemperatureAmbianteThermo(){
     console.log("Récupération de la température ambiante")
-    return 3;
+    return 3;reponse[0] = "100";
 }
 
 function setTemperatureThermo(zone){
@@ -93,10 +132,18 @@ function getStatutThermo(){
 }
 
 function startThermo(){
-    thermo.statut_thermo= 1;
-    console.log("Démarrage de la thermo!!");
-    setTimeout(()=>{
-        thermo.statut_thermo = 0;
-        console.log("Arrêt de la thermo!!");
-    },30000)
+    if(getStatutThermo() == 1)
+    {
+        return 0;
+    }
+    else{
+        thermo.statut_thermo = 1;
+        console.log("Démarrage de la thermo!!");
+        setTimeout(()=>{
+            thermo.statut_thermo = 0;
+            console.log("Arrêt de la thermo!!");
+        },30000)
+        return 1;
+    }
+   
 }

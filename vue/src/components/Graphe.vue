@@ -43,14 +43,14 @@ export default {
   methods: {
     changeData(){
       
-      let data_to_send = {"type": "get"};
+      let data_to_send = ["get_temperature"];
       let headers = {'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
             'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-      fetch("http://localhost:3000/temperature", {
+      fetch("http://localhost:3000", {
         method: 'post',
         headers,
         body: JSON.stringify(data_to_send)
@@ -58,7 +58,7 @@ export default {
       })
       .then(res=> res.json())
       .then(data => {
-        this.data = data.data.zone_chauffe;
+        this.data = data[1].zone_chauffe;
       });
 
 
