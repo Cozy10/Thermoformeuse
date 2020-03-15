@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     changeData(){
-      
+
       let data_to_send = ["get_temperature"];
       let headers = {'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',

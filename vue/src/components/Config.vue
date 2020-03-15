@@ -78,12 +78,6 @@
       >
         mdi-pencil
       </v-icon>
-      <!-- <v-icon
-        large
-        @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon> -->
       <v-icon
         large
         @click="uploadItem(item)"
@@ -95,142 +89,9 @@
       <v-btn color="primary" @click="initialize">Reset</v-btn>
     </template>
   </v-data-table>
-<!--
-  <v-container text-right>
-    <template>
-
-    <v-card>
-      <v-card-title>
-        Préréglages
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Rechercher"
-          single-line
-          hide-details
-        ></v-text-field>
-      </v-card-title>
-      <v-btn>
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
-      <v-btn>
-        <v-icon>mdi-upload</v-icon>
-      </v-btn>
-      <v-btn>
-        <v-icon>mdi-pencil</v-icon>
-      </v-btn>
-      <v-btn>
-        <v-icon>mdi-delete</v-icon>
-      </v-btn>
-      <v-data-table
-        v-model="selected"
-        item-key="name"
-        :headers="headers"
-        :items="config"
-        :search="search"
-        :single-select="false"
-        show-select
-      >
-      </v-data-table>
-      <template v-slot:item.action="{ item }">
-        <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          edit
-        </v-icon>
-        <v-icon
-          small
-          @click="deleteItem(item)"
-        >
-          delete
-        </v-icon>
-      </template>
-    </v-card>
-  </template>
-  </v-container> -->
 </template>
 
 <script>
-  // export default {
-  //   data: () => ({
-  //       selected: [],
-  //       search: '',
-  //       headers: [
-  //           {
-  //             text: 'Nom',
-  //             value: 'name',
-  //           },
-  //           { text: 'T1', value: 't1' },
-  //           { text: 'T2', value: 't2'},
-  //           { text: 'T3', value: 't3'},
-  //           { text: 'T4', value: 't4' },
-  //           { text: 'T5', value: 't5'},
-  //           { text: 'T6', value: 't6'},
-  //         ],
-  //         config: [
-  //           {
-  //             name: 'Pyrénés',
-  //             t1: 200,
-  //             t2: 210,
-  //             t3: 200,
-  //             t4: 220,
-  //             t5: 230,
-  //             t6: 190
-  //           },
-  //           {
-  //             name: 'Alpes',
-  //             t1: 200,
-  //             t2: 230,
-  //             t3: 180,
-  //             t4: 220,
-  //             t5: 210,
-  //             t6: 190
-  //           },
-  //           {
-  //             name: 'France',
-  //             t1: 150,
-  //             t2: 230,
-  //             t3: 190,
-  //             t4: 215,
-  //             t5: 185,
-  //             t6: 200
-  //           },
-  //           {
-  //             name: 'Chili',
-  //             t1: 250,
-  //             t2: 190,
-  //             t3: 230,
-  //             t4: 180,
-  //             t5: 230,
-  //             t6: 210
-  //           },
-  //         ],
-  //     }),
-  //     methods: {
-  //       changeData() {
-  //         this.config
-  //         .push({
-  //           name: 'trolol',
-  //           t1: 200,
-  //           t2: 210,
-  //           t3: 200,
-  //           t4: 220,
-  //           t5: 230,
-  //           t6: 190
-  //         });
-  //       },
-  //       deleteItem(item) {
-  //         console.log(item);
-  //         console.log("deleted");
-  //       }
-  //     },
-  //     mounted() {
-  //       setTimeout(this.changeData, 2000);
-  //     },
-  // }
   export default {
     data: () => ({
       dialog: false,
@@ -292,44 +153,47 @@
         this.deleteItem(this.selected[0]);
       },
       initialize () {
-        this.config = [
-          {
-            name: 'Pyrénés',
-            t1: 200,
-            t2: 210,
-            t3: 200,
-            t4: 220,
-            t5: 230,
-            t6: 190
-          },
-          {
-            name: 'Alpes',
-            t1: 200,
-            t2: 230,
-            t3: 180,
-            t4: 220,
-            t5: 210,
-            t6: 190
-          },
-          {
-            name: 'France',
-            t1: 150,
-            t2: 230,
-            t3: 190,
-            t4: 215,
-            t5: 185,
-            t6: 200
-          },
-          {
-            name: 'Chili',
-            t1: 250,
-            t2: 190,
-            t3: 230,
-            t4: 180,
-            t5: 230,
-            t6: 210
-          },
-        ]
+        let data_to_send = ["get_all_configurations"];
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000", {
+          method: 'post',
+          headers,
+          body: JSON.stringify(data_to_send)
+
+        })
+        .then(res=> res.json())
+        .then(data => {
+          let i;
+          this.headers = [{text: 'Nom', value: 'name'}];
+          for (i=1; i<=data[1][0].parametre.temperature_zone.length; i++){
+            this.headers.push({text: 'T'+i, value:'t'+i});
+          }
+          this.headers.push({ text: 'Actions', value: 'action', sortable: false });
+          console.log(data[1].length);
+          for(i=0; i<data[1].length; i++){
+            let d = {name: data[1][i].nom};
+            for(let i2=0; i2<data[1][0].parametre.temperature_zone.length; i2++){
+              let txt = 't'+(i2+1);
+              console.log( data[1][0].parametre.temperature_zone[i2]);
+              console.log(txt);
+              d[txt] = data[1][0].parametre.temperature_zone[i2];
+            }
+            console.log(data[1][i].nom)
+            this.config.push(d)
+          }
+        });
+      [{
+        "_id":"5e6e8a9ea0aed031bdf32148",
+        "date":1584302750450,
+        "nom":"conf_de_test",
+        "parametre":{"temperature_zone":[100,120,80,105,110,150]},
+        "detail":"sans detail"
+      },{"_id":"5e6e918ffcba94373e474443","date":1584053527282,"nom":"conf_de_test","parametre":{"temperature_zone":[100,120,80,105,110,150]},"detail":"sans detail"},{"_id":"5e6e91e6fcba94373e474445","date":1584053527282,"nom":"conf_de_test","parametre":{"temperature_zone":[100,120,80,105,110,150]},"detail":"sans detail"}]
       },
 
       editItem (item) {
