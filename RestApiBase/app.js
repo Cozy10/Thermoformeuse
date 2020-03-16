@@ -11,9 +11,10 @@ let port = 3000
 let thermo = new Object();
 thermo.statut_thermo = 0;
 
-let fichier = fs.readFileSync('./config.json');
-let config = JSON.parse(fichier);
-console.log(config.nb_zones);
+let fichier_specfications = fs.readFileSync('./specifications.json');
+let specifications_thermo = JSON.parse(fichier_specfications);
+//spécifications physiques de la thermoformeuse: nombre de zone, nom des zones...
+
 
 app.use(cors());
 app.use(bodyparser.urlencoded({extended:false}));
@@ -30,21 +31,22 @@ app.post('/', (req, res)=> {
     let reponse = new Array(3);
     reponse[1] = new Object();
     if(body[0]=== "get_temperature"){
-        reponse[0] = "100";
+        reponse[0] = 100;
         reponse[1].zone_chauffe = getTemperatureThermo();
         reponse[1].ambiante = getTemperatureAmbianteThermo();
+        reponse[1].nom_zone_chauffe = specifications_thermo.nom_zone_chauffe
         reponse[2] = "Récuprations des températures!!!^^";
         res.json(reponse);
     }
     else if (body[0] === "set_temperature"){
         setTemperatureThermo(body[1].zone_chauffe);
-        reponse[0] = "100";
+        reponse[0] = 100;
         reponse[2] = "Modification des températures!^^";
         res.json(reponse);
 
     }
     else if(body[0] === "get_statut"){
-        reponse[0] = "100";
+        reponse[0] = 100;
         reponse[1].statut = getStatutThermo();
         reponse[2] = "Récupération du statut!^^";
         res.json(reponse);
@@ -53,21 +55,19 @@ app.post('/', (req, res)=> {
     }
     else if(body[0] === "start"){
         if (startThermo() == 1){
-            reponse[0] = "100";
+            reponse[0] = 100;
             reponse[2] = "La thermoformeuse a bien démarrée!!!^^";
         }
         else
         {
-            reponse[0] = "100";
+            reponse[0] = 100;
             reponse[2] = "Un cycle est déja lancé, veuillez patienter la fin de celui-ci!!";
         }
         res.json(reponse);
-
-
     }
     else if(body[0] === "get_all_log"){
         dao.getAllLog().then(resulat => {
-            reponse[0] = "100";
+            reponse[0] = 100;
             reponse[1] = resulat;
             reponse[2] = "Récupérations des logs";
             res.json(reponse);
@@ -76,7 +76,7 @@ app.post('/', (req, res)=> {
     else if(body[0] === "save_log"){
 
         dao.saveLog(body[1].log).then(()=>{
-            reponse[0] = "100";
+            reponse[0] = 100;
             reponse[2] = "log sauvergardé";
             res.json(reponse);
         });
@@ -84,7 +84,7 @@ app.post('/', (req, res)=> {
     }
     else if(body[0] === "get_all_configurations"){
         dao.getAllConfiguration().then(resulat => {
-            reponse[0] = "100";
+            reponse[0] = 100;
             reponse[1] = resulat;
             reponse[2] = "Récupérations des configurations!!";
             res.json(reponse);
@@ -93,27 +93,34 @@ app.post('/', (req, res)=> {
     }
     else if(body[0] === "save_configuration"){
         dao.saveConfiguration(body[1].configuration).then(() => {
-            reponse[0] = "100";
+            reponse[0] = 100;
             reponse[2] = "configuration sauvergardé";
             res.json(reponse);
         });
     }
-    else if(body[0] === "get_configuration"){
-      reponse[0] = "100";
-      reponse[1] = {name:"Alpes"};
-      reponse[2] = "Récupération de la configuration courante";
-      res.json(reponse);
+    else if (body[0] === "set_configuration_courante"){
+        dao.setConfigurationCourante(body[1].config_courante._id)
+        reponse[2] = "Modification de la configuration active";
+        reponse[0] = 100;
+        res.json(reponse);
     }
-    else if (body[0] === "get_configuration_thermoformeuse"){
-      reponse[0] = "100";
-      reponse[1] = config;
-      reponse[2] = "Récupération de la configuration courante";
-      res.json(reponse);
+    else if(body[0] === "get_configuration_courante"){
+        reponse[0] = 100;
+        reponse[1] = dao.getConfigurationCourante()
+        reponse[2] = "Récupération de la configuration courante";
+        res.json(reponse);
+    }
+
+    else if (body[0] === "get_specifications_thermo"){
+        reponse[0] = 100;
+        reponse[1] = specifications_thermo;
+        reponse[2] = "Récupération de la configuration active dans la thermo";
+        res.json(reponse);
     }
     else {
-      reponse[0] = "300";
-      reponse[2] = "Veuillez entrer dans le champ \"method\" une action valide !!!";
-      res.json(reponse);
+        reponse[0] = 300;
+        reponse[2] = "Veuillez entrer dans le champ \"method\" une action valide !!!";
+        res.json(reponse);
     }
 
 })
@@ -132,7 +139,7 @@ function getTemperatureThermo(){
 
 function getTemperatureAmbianteThermo(){
     console.log("Récupération de la température ambiante")
-    return 3;reponse[0] = "100";
+    return 3;reponse[0] = 100;
 }
 
 function setTemperatureThermo(zone){
@@ -162,5 +169,5 @@ function startThermo(){
         },30000)
         return 1;
     }
-
 }
+

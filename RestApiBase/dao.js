@@ -1,4 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
+var MongoObjectID = require("mongodb").ObjectID;
 var url = "mongodb://localhost:27017/";
 var nomdb = "test_db";
 
@@ -75,8 +76,43 @@ async function getAllLog(){
     }
 }
 
+async function setConfigurationCourante(id_config){
+    const client = new MongoClient(url);
+    try {
+        await client.connect();
+        console.log("ok")
+        let config_active = await getConfigurationCourante()
+        if (config_active != null ){
+            await client.db(nomdb).collection("configurations").updateOne({_id:config_active._id}, {$set:{active:false}})
+        }
+        
+        await client.db(nomdb).collection("configurations").updateOne({_id:new MongoObjectID(id_config)}, {$set:{active:true}})
+        
+    } catch (e) {
+        throw (e);
+    } finally {
+        await client.close();
+    }
+}
+
+async function getConfigurationCourante(){
+    const client = new MongoClient(url);
+    try {
+        await client.connect();
+
+        return await client.db(nomdb).collection("configurations").findOne({active: true});
+        
+    } catch (e) {
+        throw (e);
+    } finally {
+        await client.close();
+    }
+}
+
 exports.getAllConfiguration = getAllConfiguration
 exports.getConfigurationByNom = getConfigurationByNom
 exports.saveConfiguration = saveConfiguration
 exports.getAllLog = getAllLog
 exports.saveLog = saveLog
+exports.getConfigurationCourante = getConfigurationCourante
+exports.setConfigurationCourante = setConfigurationCourante
