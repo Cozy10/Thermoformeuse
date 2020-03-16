@@ -6,6 +6,10 @@
           :headers="headers"
           :items="logs"
           :items-per-page="15"
+          :single-expand="singleExpand"
+          :expanded.sync="expanded"
+          :item-key="name"
+          show-expand
           :search="search"
           class="elevation-3"
         >
@@ -22,8 +26,8 @@
               ></v-text-field>
             </v-toolbar>
           </template>
-          <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length">More info about {{ item.name }}</td>
+          <template v-slot:expanded-item="{ headers}">
+            <td :colspan="headers.length">Temperatures</td>
           </template>
         </v-data-table>
       </v-card>

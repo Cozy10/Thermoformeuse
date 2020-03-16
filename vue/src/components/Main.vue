@@ -20,7 +20,7 @@
       <v-col cols="2">
       </v-col>
       <v-col cols="3">
-        <v-btn dark x-large fab right color="green" @click="start()">
+        <v-btn dark x-large fab right color="green" @click="start()" style="margin-top:200px">
           <v-img v-if="statut==='Prêt'"
             :src="require('../assets/start.jpg')"
             contain
