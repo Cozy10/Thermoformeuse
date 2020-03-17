@@ -37,16 +37,15 @@
 <script>
   export default {
     name: 'Logs',
-
     data: () => ({
       expanded: [],
       search: '',
       headers: [
-          {
-            text: 'Série',
-            sortable: false,
-            value: 'serie',
-          },
+          // {
+          //   text: 'Série',
+          //   sortable: false,
+          //   value: 'serie',
+          // },
           { text: 'Date', value: 'date' },
           { text: 'Action', value: 'action', sortable: false },
           { text: 'Préréglage', value: 'configuration', sortable: false},
@@ -74,9 +73,7 @@
           })
           .then(res=> res.json())
           .then(data => {
-            console.log(data[1])
             this.logs = data[1];
-            console.log(this.logs[0]);
           });
         }
       }

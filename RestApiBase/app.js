@@ -116,7 +116,11 @@ app.post('/', (req, res)=> {
     }
     else if (body[0] === "set_configuration_courante"){
         dao.setConfigurationCourante(body[1].item._id)
-        setTemperatureThermo(body[1].item.parametre.temperature_zone)
+        let tab = new Array(specifications_thermo.nb_zones);
+        for(let i=0; i<specifications_thermo.nb_zones; i++){
+          tab[i] = body[1].item[specifications_thermo.nom_zone_chauffe[i]];
+        }
+        setTemperatureThermo(tab);
         console.log(body[1])
         reponse[2] = "Modification de la configuration active";
         reponse[0] = 100;
@@ -200,7 +204,7 @@ function startThermo(){
             date : Date.now(),
             action : "lancer_cycle",
             specifications_thermo : specifications_thermo,
-            log_ 
+            log_
 
         }
         setTimeout(()=>{
