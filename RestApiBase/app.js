@@ -114,6 +114,7 @@ app.post('/', (req, res)=> {
     }
     else if (body[0] === "set_configuration_courante"){
         dao.setConfigurationCourante(body[1]._id)
+        setTemperatureThermo(body[1])
         reponse[2] = "Modification de la configuration active";
         reponse[0] = 100;
         res.json(reponse);

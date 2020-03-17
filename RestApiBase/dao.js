@@ -23,7 +23,7 @@ async function updateConfiguration(conf){
 
     await client.connect();
     console.log(id);
-    await client.db(nomdb).collection("configurations").updateOne({_id:id}, {$set: conf}, function(err, res) {
+    await client.db(nomdb).collection("configurations").updateOne({_id:new MongoObjectID(id)}, {$set: conf}, function(err, res) {
         if (err) throw err;
         console.log("configuration bien Mise à jour !!");
         client.close();
@@ -36,7 +36,7 @@ async function deleteConfiguration(conf){
 
     await client.connect();
     console.log(id);
-    await client.db(nomdb).collection("configurations").deleteOne({_id:ObjectID(id)}, function(err, res) {
+    await client.db(nomdb).collection("configurations").deleteOne({_id:new MongoObjectID(id)}, function(err, res) {
         if (err) throw err;
         console.log("configuration bien Supprimé !!");
         client.close();
