@@ -200,16 +200,22 @@ function startThermo(){
     else{
         thermo.statut_thermo = 1;
         console.log("Démarrage de la thermo!!");
-        let log_cycle = {
-            date : Date.now(),
-            action : "lancer_cycle",
-            specifications_thermo : specifications_thermo,
-            log_
+        let log = {
+            statut_thermo  : new Array
+        }
 
+        let inter = setInterval(log_cycle, 1000)
+        function log_cycle(){
+            log.statut_thermo.push({
+                date : Date.now(),
+                action : "lancer_cycle",
+                zone_chauffe : configuration_courante.zone_chauffe
+            }) 
         }
         setTimeout(()=>{
+            clearInterval(inter)
+            dao.saveLog(Object.assign({},log)).catch(e => console.error(e))
             thermo.statut_thermo = 0;
-
             console.log("Arrêt de la thermo!!");
         },30000)
         return 1;
