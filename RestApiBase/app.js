@@ -106,7 +106,8 @@ app.post('/', (req, res)=> {
       });
     }
     else if (body[0] === "supprimer_configuration"){
-      dao.deleteConfiguration(body[1]._id).then(() => {
+      console.log(body[1]);
+      dao.deleteConfiguration(body[1]).then(() => {
           reponse[0] = 100;
           reponse[2] = "configuration supprimée";
           res.json(reponse);

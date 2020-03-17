@@ -31,6 +31,7 @@ async function updateConfiguration(conf){
 }
 
 async function deleteConfiguration(conf){
+  console.log(conf);
     let id = conf._id;
     const client = new MongoClient(url);
 
