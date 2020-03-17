@@ -168,12 +168,22 @@ function getTemperatureAmbianteThermo(){
 function setTemperatureThermo(zone){
     console.log("Modification des températures des zones de chauffe par :" + JSON.stringify(zone));
     configuration_courante.zone_chauffe = zone
-
+    thermo.statut_thermo = 3
+    let id_int_tab = new Array();
     for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
-        let id_int = setInterval(burn, 1000);
+        id_int_tab[index] = setInterval(burn, 1000);
         function burn(){
             if(thermo.zone_chauffe[index] >= configuration_courante.zone_chauffe[index]){
-                clearInterval(id_int)
+                clearInterval(id_int_tab[index])
+                id_int_tab[index] = 0
+                let all_zero = 1
+                for (let i = 0; i < id_int_tab.length; i++) {
+                    const element = id_int_tab[i];
+                    if(element != 0)
+                        all_zero = 0
+                }
+                if(all_zero == 1)
+                    thermo.statut_thermo = 0
             }
             else{
                 thermo.zone_chauffe[index]+= 15;
@@ -200,13 +210,10 @@ function startThermo(){
     else{
         thermo.statut_thermo = 1;
         console.log("Démarrage de la thermo!!");
-        let log = {
-            statut_thermo  : new Array
-        }
-
+        let log = new Array()
         let inter = setInterval(log_cycle, 1000)
         function log_cycle(){
-            log.statut_thermo.push({
+            log.push({
                 date : Date.now(),
                 action : "lancer_cycle",
                 zone_chauffe : configuration_courante.zone_chauffe
