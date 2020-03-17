@@ -26,7 +26,6 @@ app.use(bodyparser.json())
 //Forme de la requete : ["methode": string, "data":Objet Json]
 //Forme de la reponse  : ["code":entier, "data":objet json", infos": string] 
 
-
 app.post('/', (req, res)=> {
     let body = req.body;
     let reponse = new Array(3);
@@ -117,7 +116,8 @@ app.post('/', (req, res)=> {
     }
     else if (body[0] === "set_configuration_courante"){
         dao.setConfigurationCourante(body[1]._id)
-        setTemperatureThermo(body[1].config_courante.parametre.temperature_zone)
+        setTemperatureThermo(body[1].item.parametre.temperature_zone)
+        console.log(body[1])
         reponse[2] = "Modification de la configuration active";
         reponse[0] = 100;
         res.json(reponse);
@@ -148,7 +148,6 @@ app.post('/', (req, res)=> {
 })
 
 
-
 app.post('/preset')
 app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
@@ -177,7 +176,6 @@ function setTemperatureThermo(zone){
             }
         }
     }
-    
 }
 
 function getStatutThermo(){
@@ -189,6 +187,7 @@ function getStatutThermo(){
     return thermo.statut_thermo;
 }
 
+
 function startThermo(){
     if(getStatutThermo() == 1)
     {
@@ -197,13 +196,18 @@ function startThermo(){
     else{
         thermo.statut_thermo = 1;
         console.log("Démarrage de la thermo!!");
+        let log_cycle = {
+
+        }
         setTimeout(()=>{
             thermo.statut_thermo = 0;
+
             console.log("Arrêt de la thermo!!");
         },30000)
         return 1;
     }
 }
+
 
 function initThermo(specifications_thermo){
     thermo.statut = 0
@@ -212,5 +216,8 @@ function initThermo(specifications_thermo){
         thermo.zone_chauffe[index] = 0;
     }
 }
+
+
+
 
 //sauvegarde des températures dans les logs toutes les x secondes (date, action , reglages courante, tableau)
