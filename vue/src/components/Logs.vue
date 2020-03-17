@@ -27,7 +27,7 @@
             </v-toolbar>
           </template>
           <template v-slot:expanded-item="{ headers, item}">
-            <td :colspan="headers.length">{{item}}</td>
+            <td :colspan="headers.length">{{item.temperatures}}</td>
           </template>
         </v-data-table>
       </v-card>
@@ -50,7 +50,7 @@
           },
           { text: 'Date', value: 'date' },
           { text: 'Action', value: 'action', sortable: false },
-          { text: 'Préréglage', value: 'preset', sortable: false},
+          { text: 'Préréglage', value: 'configuration', sortable: false},
           { text: '', value: 'data-table-expand' },
         ],
         logs: [],

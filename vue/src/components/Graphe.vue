@@ -65,7 +65,11 @@ export default {
           }
         }
         else{
-          this.temp_seuils = data[1].zone_chauffe;
+          console.log(data[1]);
+          this.temp_seuils = new Array(this.nb_zones);
+          for (let i=0; i<this.nb_zones; i++){
+            this.temp_seuils[i] = data[1][this.tab_zones[i]];
+          }
         }
       });
     },

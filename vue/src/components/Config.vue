@@ -5,6 +5,7 @@
     :items="config"
     :search="search"
     :single-select="false"
+    item-key="_id"
     show-select
   >
     <template v-slot:top>
@@ -36,25 +37,25 @@
               <v-container>
                 <v-row>
                   <v-col cols="12" sm="12" md="30">
-                    <v-text-field v-model="editedItem.name" label="Nom"></v-text-field>
+                    <v-text-field v-model="editedItem.nom" label="Nom"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.t1" label="T1"></v-text-field>
+                    <v-text-field v-model="editedItem.Z1" label="Z1"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.t2" label="T2"></v-text-field>
+                    <v-text-field v-model="editedItem.Z2" label="Z2"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.t3" label="T3"></v-text-field>
+                    <v-text-field v-model="editedItem.Z3" label="Z3"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.t4" label="T4"></v-text-field>
+                    <v-text-field v-model="editedItem.Z4" label="Z4"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.t5" label="T5"></v-text-field>
+                    <v-text-field v-model="editedItem.Z5" label="Z5"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.t6" label="T6"></v-text-field>
+                    <v-text-field v-model="editedItem.Z6" label="Z6"></v-text-field>
                   </v-col>
                 </v-row>
               </v-container>
@@ -93,19 +94,7 @@
       dialog: false,
       selected: [],
       search:'',
-      headers: [
-        {
-          text: 'Nom',
-          value: 'name',
-        },
-        { text: 'T1', value: 't1' },
-        { text: 'T2', value: 't2'},
-        { text: 'T3', value: 't3'},
-        { text: 'T4', value: 't4' },
-        { text: 'T5', value: 't5'},
-        { text: 'T6', value: 't6'},
-        { text: 'Actions', value: 'action', sortable: false },
-      ],
+      headers: [],
       config: [],
       editedIndex: -1,
       editedItem: {
@@ -153,16 +142,15 @@
         })
         .then(res=> res.json())
         .then(d => {
-          console.log(d);
           // Création de la barre de titre
-          this.headers = [{text: 'Nom', value: 'name'}];
+          this.headers = [{text: 'Nom', value: 'nom'}];
           this.headers = this.headers.concat(d[1].nom_zone_chauffe);
           for(let i=0; i<d[1].nb_zones; i++){
-            this.headers.push({text: d[1].nom_zone_chauffe[i], value: 't'+i});
+            this.headers.push({text: d[1].nom_zone_chauffe[i], value: d[1].nom_zone_chauffe[i]});
           }
           this.headers.push({ text: 'Actions', value: 'action', sortable: false });
 
-          //Insertion des données
+          //Insertion des donnéee
           data_to_send = ["get_all_configurations"];
           fetch("http://localhost:3000", {
             method: 'post',
@@ -172,16 +160,9 @@
           })
           .then(res=> res.json())
           .then(data => {
-            console.log(data[1]);
             let i;
             for(i=0; i<data[1].length; i++){
-              let d = {name: data[1][i].nom};
-              for(let i2=0; i2<data[1][i].parametre.temperature_zone.length; i2++){
-                let txt = 't'+(i2+1);
-                d[txt] = data[1][i].parametre.temperature_zone[i2];
-              }
-              d.id = data[1][i]._id;
-              this.config.push(d)
+              this.config.push(data[1][i]);
             }
           });
         });
@@ -194,7 +175,8 @@
       },
 
       deleteItem (item) {
-        let data_to_send = ["supprimer_configuration", this.editedItem];
+        console.log(item);
+        let data_to_send = ["supprimer_configuration", item];
         let headers = {'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
               'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
@@ -263,8 +245,7 @@
         this.close()
       },
       chargerConfig(item){
-        let d = {};
-        d._id = item.id;
+        let d = {_id:item._id};
         console.log(d);
         let data_to_send = ["set_configuration_courante",d];
         let headers = {'Access-Control-Allow-Origin': '*',
@@ -280,7 +261,7 @@
         })
         .then(res=> res.json())
         .then(() => {
-          console.log(item.id);
+          console.log(item._id);
         });
       }
     },
