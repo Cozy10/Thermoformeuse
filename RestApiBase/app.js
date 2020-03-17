@@ -38,20 +38,19 @@ app.post('/', (req, res)=> {
         reponse[2] = "Récuprations des températures!!!^^";
         res.json(reponse);
     }
-    else if (body[0] === "set_temperature"){
-        setTemperatureThermo(body[1].zone_chauffe);
-        reponse[0] = 100;
-        reponse[2] = "Modification des températures!^^";
-        res.json(reponse);
-
-    }
     else if(body[0] === "get_statut"){
         reponse[0] = 100;
-        reponse[1].statut = getStatutThermo();
+        // reponse[1].statut = getStatutThermo();
         reponse[2] = "Récupération du statut!^^";
-        res.json(reponse);
-
-
+        dao.getConfigurationCourante().then(resultat => {
+          if(resultat === null){
+            reponse[1].statut = 2;
+          }
+          else {
+            reponse[1].statut = getStatutThermo();
+          }
+          res.json(reponse);
+        })
     }
     else if(body[0] === "start"){
         if (startThermo() == 1){
@@ -66,9 +65,9 @@ app.post('/', (req, res)=> {
         res.json(reponse);
     }
     else if(body[0] === "get_all_log"){
-        dao.getAllLog().then(resulat => {
+        dao.getAllLog().then(resultat => {
             reponse[0] = 100;
-            reponse[1] = resulat;
+            reponse[1] = resultat;
             reponse[2] = "Récupérations des logs";
             res.json(reponse);
         });
@@ -83,32 +82,50 @@ app.post('/', (req, res)=> {
 
     }
     else if(body[0] === "get_all_configurations"){
-        dao.getAllConfiguration().then(resulat => {
+        dao.getAllConfiguration().then(resultat => {
             reponse[0] = 100;
-            reponse[1] = resulat;
+            reponse[1] = resultat;
             reponse[2] = "Récupérations des configurations!!";
             res.json(reponse);
         });
 
     }
     else if(body[0] === "save_configuration"){
-        dao.saveConfiguration(body[1].configuration).then(() => {
+      console.log(body);
+        dao.saveConfiguration(body[1]).then(() => {
             reponse[0] = 100;
             reponse[2] = "configuration sauvergardé";
             res.json(reponse);
         });
     }
+    else if (body[0] === "modifier_configuration"){
+      dao.updateConfiguration(body[1]).then(() => {
+          reponse[0] = 100;
+          reponse[2] = "configuration sauvergardé";
+          res.json(reponse);
+      });
+    }
+    else if (body[0] === "supprimer_configuration"){
+      dao.deleteConfiguration(body[1]._id).then(() => {
+          reponse[0] = 100;
+          reponse[2] = "configuration supprimée";
+          res.json(reponse);
+      });
+    }
     else if (body[0] === "set_configuration_courante"){
-        dao.setConfigurationCourante(body[1].config_courante._id)
+        dao.setConfigurationCourante(body[1]._id)
         reponse[2] = "Modification de la configuration active";
         reponse[0] = 100;
         res.json(reponse);
     }
     else if(body[0] === "get_configuration_courante"){
-        reponse[0] = 100;
-        reponse[1] = dao.getConfigurationCourante()
-        reponse[2] = "Récupération de la configuration courante";
-        res.json(reponse);
+        dao.getConfigurationCourante().then(resultat => {
+          reponse[0] = 100;
+          reponse[1] = resultat
+          reponse[2] = "Récupération de la configuration courante";
+          res.json(reponse);
+        })
+
     }
 
     else if (body[0] === "get_specifications_thermo"){
@@ -118,6 +135,7 @@ app.post('/', (req, res)=> {
         res.json(reponse);
     }
     else {
+        console.log(body);
         reponse[0] = 300;
         reponse[2] = "Veuillez entrer dans le champ \"method\" une action valide !!!";
         res.json(reponse);
@@ -170,4 +188,3 @@ function startThermo(){
         return 1;
     }
 }
-

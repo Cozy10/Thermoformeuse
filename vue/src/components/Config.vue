@@ -1,7 +1,6 @@
 <template>
   <v-data-table
     v-model="selected"
-    item-key="name"
     :headers="headers"
     :items="config"
     :search="search"
@@ -80,13 +79,10 @@
       </v-icon>
       <v-icon
         large
-        @click="uploadItem(item)"
+        @click="chargerConfig(item)"
       >
         mdi-upload
       </v-icon>
-    </template>
-    <template v-slot:no-data>
-      <v-btn color="primary" @click="initialize">Reset</v-btn>
     </template>
   </v-data-table>
 </template>
@@ -113,22 +109,10 @@
       config: [],
       editedIndex: -1,
       editedItem: {
-        name: '',
-        t1:0,
-        t2:0,
-        t3:0,
-        t4:0,
-        t5:0,
-        t6:0,
+
       },
       defaultItem: {
-        name: 'Config',
-        t1:0,
-        t2:0,
-        t3:0,
-        t4:0,
-        t5:0,
-        t6:0,
+
       },
     }),
 
@@ -150,10 +134,67 @@
 
     methods: {
       deleteItems(){
-        this.deleteItem(this.selected[0]);
+        confirm('Êtes-vous sûre de vouloir supprimer cet configuration') && this.selected.forEach((item) => {
+          this.deleteItem(item)
+        });
       },
       initialize () {
-        let data_to_send = ["get_all_configurations"];
+        let data_to_send = ["get_specifications_thermo"];
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000",{
+          method: 'post',
+        headers,
+        body: JSON.stringify(data_to_send)
+        })
+        .then(res=> res.json())
+        .then(d => {
+          console.log(d);
+          // Création de la barre de titre
+          this.headers = [{text: 'Nom', value: 'name'}];
+          this.headers = this.headers.concat(d[1].nom_zone_chauffe);
+          for(let i=0; i<d[1].nb_zones; i++){
+            this.headers.push({text: d[1].nom_zone_chauffe[i], value: 't'+i});
+          }
+          this.headers.push({ text: 'Actions', value: 'action', sortable: false });
+
+          //Insertion des données
+          data_to_send = ["get_all_configurations"];
+          fetch("http://localhost:3000", {
+            method: 'post',
+            headers,
+            body: JSON.stringify(data_to_send)
+
+          })
+          .then(res=> res.json())
+          .then(data => {
+            console.log(data[1]);
+            let i;
+            for(i=0; i<data[1].length; i++){
+              let d = {name: data[1][i].nom};
+              for(let i2=0; i2<data[1][i].parametre.temperature_zone.length; i2++){
+                let txt = 't'+(i2+1);
+                d[txt] = data[1][i].parametre.temperature_zone[i2];
+              }
+              d.id = data[1][i]._id;
+              this.config.push(d)
+            }
+          });
+        });
+      },
+
+      editItem (item) {
+        this.editedIndex = this.config.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialog = true
+      },
+
+      deleteItem (item) {
+        let data_to_send = ["supprimer_configuration", this.editedItem];
         let headers = {'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
               'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
@@ -164,47 +205,12 @@
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)
-
         })
         .then(res=> res.json())
-        .then(data => {
-          let i;
-          this.headers = [{text: 'Nom', value: 'name'}];
-          for (i=1; i<=data[1][0].parametre.temperature_zone.length; i++){
-            this.headers.push({text: 'T'+i, value:'t'+i});
-          }
-          this.headers.push({ text: 'Actions', value: 'action', sortable: false });
-          console.log(data[1].length);
-          for(i=0; i<data[1].length; i++){
-            let d = {name: data[1][i].nom};
-            for(let i2=0; i2<data[1][0].parametre.temperature_zone.length; i2++){
-              let txt = 't'+(i2+1);
-              console.log( data[1][0].parametre.temperature_zone[i2]);
-              console.log(txt);
-              d[txt] = data[1][0].parametre.temperature_zone[i2];
-            }
-            console.log(data[1][i].nom)
-            this.config.push(d)
-          }
+        .then(() => {
+          const index = this.config.indexOf(item)
+          this.config.splice(index, 1)
         });
-      [{
-        "_id":"5e6e8a9ea0aed031bdf32148",
-        "date":1584302750450,
-        "nom":"conf_de_test",
-        "parametre":{"temperature_zone":[100,120,80,105,110,150]},
-        "detail":"sans detail"
-      },{"_id":"5e6e918ffcba94373e474443","date":1584053527282,"nom":"conf_de_test","parametre":{"temperature_zone":[100,120,80,105,110,150]},"detail":"sans detail"},{"_id":"5e6e91e6fcba94373e474445","date":1584053527282,"nom":"conf_de_test","parametre":{"temperature_zone":[100,120,80,105,110,150]},"detail":"sans detail"}]
-      },
-
-      editItem (item) {
-        this.editedIndex = this.config.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-
-      deleteItem (item) {
-        const index = this.config.indexOf(item)
-        confirm('Êtes-vous sûre de vouloir supprimer cet configuration') && this.desserts.splice(index, 1)
       },
 
       close () {
@@ -217,12 +223,66 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.config[this.editedIndex], this.editedItem)
+          console.log(this.editedItem);
+          let data_to_send = ["modifier_configuration", this.editedItem];
+          let headers = {'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+                'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+          fetch("http://localhost:3000", {
+            method: 'post',
+            headers,
+            body: JSON.stringify(data_to_send)
+          })
+          .then(res=> res.json())
+          .then(() => {
+            console.log(this.editedItem);
+            Object.assign(this.config[this.editedIndex], this.editedItem)
+          });
         } else {
-          this.config.push(this.editedItem)
+          let data_to_send = ["save_configuration", this.editedItem];
+          let headers = {'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+                'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+          fetch("http://localhost:3000", {
+            method: 'post',
+            headers,
+            body: JSON.stringify(data_to_send)
+          })
+          .then(res=> res.json())
+          .then(() => {
+            console.log(this.editedItem);
+            this.config.push(this.editedItem)
+          });
         }
         this.close()
       },
+      chargerConfig(item){
+        let d = {};
+        d._id = item.id;
+        console.log(d);
+        let data_to_send = ["set_configuration_courante",d];
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000", {
+          method: 'post',
+          headers,
+          body: JSON.stringify(data_to_send)
+        })
+        .then(res=> res.json())
+        .then(() => {
+          console.log(item.id);
+        });
+      }
     },
   }
 </script>

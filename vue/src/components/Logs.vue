@@ -26,8 +26,8 @@
               ></v-text-field>
             </v-toolbar>
           </template>
-          <template v-slot:expanded-item="{ headers}">
-            <td :colspan="headers.length">Temperatures</td>
+          <template v-slot:expanded-item="{ headers, item}">
+            <td :colspan="headers.length">{{item}}</td>
           </template>
         </v-data-table>
       </v-card>

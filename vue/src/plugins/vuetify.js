@@ -14,26 +14,33 @@ const messages = {
       },
     },
   },
-  sv: {
+  fr: {
     $vuetify: {
       dataIterator: {
         rowsPerPageText: 'Element per sida:',
-        pageText: '{0}-{1} av {2}',
+        pageText: '{0}-{1} sur {2}',
+        noResultsText: "Aucune donnée trouvée",
       },
       dataTable: {
-        itemsPerPageText: 'Élements par page'
+        itemsPerPageText: 'Élements par page',
+        ariaLabel: {
+          sortNone:""
+        }
       },
       dataFooter: {
         pageText: '{0}-{1} sur {2}',
-        itemsPerPageAll: 'Afficher les tous !'
-      }
+        itemsPerPageAll: 'Afficher les tous !',
+        prevPage: "Page précédente",
+        nextPage: "Page suivant",
+      },
+      noDataText:"Aucune donné trouvé"
     },
   },
 }
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({
-  locale: 'sv', // set locale
+  locale: 'fr', // set locale
   messages, // set locale messages
 })
 
