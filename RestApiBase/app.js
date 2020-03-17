@@ -9,18 +9,19 @@ let app = express()
 let port = 3000
 
 let thermo = new Object();
-thermo.statut_thermo = 0;
+
+let configuration_courante = new Object();
 
 let fichier_specfications = fs.readFileSync('./specifications.json');
 let specifications_thermo = JSON.parse(fichier_specfications);
 //spécifications physiques de la thermoformeuse: nombre de zone, nom des zones...
 
+initThermo(specifications_thermo)
+//initialisation de la thermo
 
 app.use(cors());
 app.use(bodyparser.urlencoded({extended:false}));
 app.use(bodyparser.json())
-
-
 
 //Forme de la requete : ["methode": string, "data":Objet Json]
 //Forme de la reponse  : ["code":entier, "data":objet json", infos": string] 
@@ -105,6 +106,7 @@ app.post('/', (req, res)=> {
           res.json(reponse);
       });
     }
+
     else if (body[0] === "supprimer_configuration"){
       console.log(body[1]);
       dao.deleteConfiguration(body[1]).then(() => {
@@ -115,7 +117,7 @@ app.post('/', (req, res)=> {
     }
     else if (body[0] === "set_configuration_courante"){
         dao.setConfigurationCourante(body[1]._id)
-        setTemperatureThermo(body[1])
+        setTemperatureThermo(body[1].config_courante.parametre.temperature_zone)
         reponse[2] = "Modification de la configuration active";
         reponse[0] = 100;
         res.json(reponse);
@@ -147,14 +149,12 @@ app.post('/', (req, res)=> {
 
 
 
-
-
 app.post('/preset')
 app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
 function getTemperatureThermo(){
     console.log("Récupération des valeurs de température des zones de chauffe")
-    return [Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100), Math.floor((Math.random() * 200) + 100)]
+    return thermo.zone_chauffe
 }
 
 function getTemperatureAmbianteThermo(){
@@ -164,6 +164,20 @@ function getTemperatureAmbianteThermo(){
 
 function setTemperatureThermo(zone){
     console.log("Modification des températures des zones de chauffe par :" + JSON.stringify(zone));
+    configuration_courante.zone_chauffe = zone
+
+    for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
+        let id_int = setInterval(burn, 1000);
+        function burn(){
+            if(thermo.zone_chauffe[index] >= configuration_courante.zone_chauffe[index]){
+                clearInterval(id_int)
+            }
+            else{
+                thermo.zone_chauffe[index]+= 15;
+            }
+        }
+    }
+    
 }
 
 function getStatutThermo(){
@@ -190,3 +204,13 @@ function startThermo(){
         return 1;
     }
 }
+
+function initThermo(specifications_thermo){
+    thermo.statut = 0
+    thermo.zone_chauffe = new Array();
+    for (let index = 0; index < specifications_thermo.nb_zones; index++) {
+        thermo.zone_chauffe[index] = 0;
+    }
+}
+
+//sauvegarde des températures dans les logs toutes les x secondes (date, action , reglages courante, tableau)

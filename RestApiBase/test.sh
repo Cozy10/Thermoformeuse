@@ -17,5 +17,5 @@ curl -d '["get_configuration_courante"]' -H "Content-Type: application/json" -X 
 echo 
 curl -d '["get_specifications_thermo"]' -H "Content-Type: application/json" -X POST http://localhost:3000
 echo
-curl -d '["set_configuration_courante", {"config_courante" : {"_id":"5e6ab77f2337780e02017112","date":1584052095531,"nom":"test","parametre":{"temperature_zone":[100,120,80,105,110,150]},"detail":"Configuration de test de la thermoformeuse","active":false}}]' -H "Content-Type: application/json" -X POST http://localhost:3000
+curl -d '["set_configuration_courante", {"config_courante" : {"_id":"5e6ab77f2337780e02017112","date":1584052095531,"nom":"test","parametre":{"temperature_zone":[100,120,80,105,110,150]},"detail":"Configuration de test de la thermoformeuse"}}]' -H "Content-Type: application/json" -X POST http://localhost:3000
 echo
