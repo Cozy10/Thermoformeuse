@@ -23,6 +23,7 @@ async function updateConfiguration(conf){
 
     await client.connect();
     console.log(id);
+    delete config._id;
     await client.db(nomdb).collection("configurations").updateOne({_id:new MongoObjectID(id)}, {$set: conf}, function(err, res) {
         if (err) throw err;
         console.log("configuration bien Mise à jour !!");
