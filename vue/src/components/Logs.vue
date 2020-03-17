@@ -6,9 +6,8 @@
           :headers="headers"
           :items="logs"
           :items-per-page="15"
-          :single-expand="singleExpand"
           :expanded.sync="expanded"
-          :item-key="name"
+          item-key="_id"
           show-expand
           :search="search"
           class="elevation-3"
@@ -77,6 +76,7 @@
           .then(data => {
             console.log(data[1])
             this.logs = data[1];
+            console.log(this.logs[0]);
           });
         }
       }

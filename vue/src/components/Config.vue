@@ -245,7 +245,7 @@
         this.close()
       },
       chargerConfig(item){
-        let d = {_id:item._id};
+        let d = {item};
         console.log(d);
         let data_to_send = ["set_configuration_courante",d];
         let headers = {'Access-Control-Allow-Origin': '*',
