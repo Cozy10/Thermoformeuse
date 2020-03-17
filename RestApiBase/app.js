@@ -199,6 +199,8 @@ function startThermo(){
         let log_cycle = {
             date : Date.now(),
             action : "lancer_cycle",
+            specifications_thermo : specifications_thermo,
+            log_ 
 
         }
         setTimeout(()=>{

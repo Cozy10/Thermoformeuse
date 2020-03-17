@@ -107,7 +107,6 @@ async function setConfigurationCourante(id_config){
     const client = new MongoClient(url);
     try {
         await client.connect();
-        console.log("ok")
         let config_active = await getConfigurationCourante()
         if (config_active != null ){
             await client.db(nomdb).collection("configurations").updateOne({_id:config_active._id}, {$set:{active:false}})
