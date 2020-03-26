@@ -8,39 +8,90 @@ import * as d3 from 'd3';
 export default {
   name: 'vue-line-chart',
   data: () => ({
-      data: [300, 108, 280, 170, 230, 242],
+      data: undefined,
       timer: undefined,
       nb_zones: undefined,
-      temp_seuils: [200, 200, 200, 200, 200, 200],
+      temp_seuils: undefined,
       margeX: 30,
       margeY: 20,
       Largeur_graphe: undefined,
       Hauteur_graphe: undefined,
       Espacement_barres: 10,
       Largeur_barres: undefined,
-      tab_zones: ["Z1", "Z2", "Z3", "Z4", "Z5", "Z6"],
-      // line: '',
+      tab_zones: undefined,
     }),
   mounted() {
-    this.nb_zones = this.data.length;
-    this.Largeur_graphe = this.nb_zones*100 + this.margeX;
-    this.Hauteur_graphe = d3.max(this.temp_seuils) + 100;
-    this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
-    // this.tab_zones = this.creer_tab_zones();
-    this.dessiner_histogramme();
-    this.timer = setInterval(this.changeData, 1000);
+    this.get_config();
   },
   destroyed: function(){
     clearInterval(this.timer);
   },
   watch:{
     data: function(){
-      // console.log('a');
       // this.createGraph();
       this.update();
     },
+    tab_zones: function(){
+      this.get_temp_seuil();
+    },
+    temp_seuils: function(){
+      this.Largeur_graphe = this.nb_zones*100 + this.margeX;
+      this.Hauteur_graphe = d3.max(this.temp_seuils) + 100;
+      this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
+      this.changeData();
+      this.timer = setInterval(this.changeData, 1000);
+    }
   },
   methods: {
+    get_temp_seuil(){
+      let data_to_send = ["get_configuration_courante"];
+      let headers = {'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+            'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+      fetch("http://localhost:3000", {
+        method: 'post',
+        headers,
+        body: JSON.stringify(data_to_send)
+      })
+      .then(res=> res.json())
+      .then(data => {
+        if(data[1] === null){
+          this.temp_seuils = new Array(this.nb_zones);
+          for(let i=0; i<this.nb_zones; i++){
+            this.temp_seuils[i] = 100;
+          }
+        }
+        else{
+          console.log(data[1]);
+          this.temp_seuils = new Array(this.nb_zones);
+          for (let i=0; i<this.nb_zones; i++){
+            this.temp_seuils[i] = data[1][this.tab_zones[i]];
+          }
+        }
+      });
+    },
+    get_config(){
+      let data_to_send = ["get_specifications_thermo"];
+      let headers = {'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+            'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+      fetch("http://localhost:3000", {
+        method: 'post',
+        headers,
+        body: JSON.stringify(data_to_send)
+      })
+      .then(res=> res.json())
+      .then(data => {
+        this.nb_zones = data[1].nb_zones;
+        this.tab_zones = data[1].nom_zone_chauffe;
+      });
+    },
     changeData(){
 
       let data_to_send = ["get_temperature"];
@@ -54,14 +105,11 @@ export default {
         method: 'post',
         headers,
         body: JSON.stringify(data_to_send)
-
       })
       .then(res=> res.json())
       .then(data => {
         this.data = data[1].zone_chauffe;
       });
-
-
     },
     dessiner_histogramme(){
       var nb_zones = this.data.length;

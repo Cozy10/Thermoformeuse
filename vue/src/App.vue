@@ -23,7 +23,7 @@
 
           <v-list-item v-on:click="activePage = 'Config'" v-model="active[1]">
             <v-list-item-icon>
-              <v-icon>mdi-settings</v-icon>
+              <v-icon>mdi-cog</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Configuration</v-list-item-title>
           </v-list-item>

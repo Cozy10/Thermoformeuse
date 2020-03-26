@@ -6,9 +6,8 @@
           :headers="headers"
           :items="logs"
           :items-per-page="15"
-          :single-expand="singleExpand"
           :expanded.sync="expanded"
-          :item-key="name"
+          item-key="_id"
           show-expand
           :search="search"
           class="elevation-3"
@@ -26,8 +25,8 @@
               ></v-text-field>
             </v-toolbar>
           </template>
-          <template v-slot:expanded-item="{ headers}">
-            <td :colspan="headers.length">Temperatures</td>
+          <template v-slot:expanded-item="{ headers, item}">
+            <td :colspan="headers.length">{{item.temperatures}}</td>
           </template>
         </v-data-table>
       </v-card>
@@ -38,19 +37,18 @@
 <script>
   export default {
     name: 'Logs',
-
     data: () => ({
       expanded: [],
       search: '',
       headers: [
-          {
-            text: 'Série',
-            sortable: false,
-            value: 'serie',
-          },
+          // {
+          //   text: 'Série',
+          //   sortable: false,
+          //   value: 'serie',
+          // },
           { text: 'Date', value: 'date' },
           { text: 'Action', value: 'action', sortable: false },
-          { text: 'Préréglage', value: 'preset', sortable: false},
+          { text: 'Préréglage', value: 'configuration', sortable: false},
           { text: '', value: 'data-table-expand' },
         ],
         logs: [],
@@ -75,7 +73,6 @@
           })
           .then(res=> res.json())
           .then(data => {
-            console.log(data[1])
             this.logs = data[1];
           });
         }

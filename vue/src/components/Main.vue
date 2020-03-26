@@ -41,10 +41,10 @@
         <v-card v-if="statut === 'Prêt'" outlined color=green>
           <h1>{{statut}}</h1>
         </v-card>
-        <v-card v-else-if="statut === 'En cours'" outlined color=orange>
+        <v-card v-else-if="statut === 'Configuration non chargée'" outlined color=red>
           <h1>{{statut}}</h1>
         </v-card>
-        <v-card v-else outlined color=red>
+        <v-card v-else outlined color=orange>
           <h1>{{statut}}</h1>
         </v-card>
       </v-col>
@@ -63,7 +63,7 @@
     },
     data: () => ({
       timer: undefined,
-      statut: "Arrêt",
+      statut: "Configuration non chargée",
       configuration: "Aucune",
     }
     ),
@@ -76,24 +76,26 @@
     },
     methods:{
       start(){
-        let data_to_send = ["start"];
-        let headers = {'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
-              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-        fetch("http://localhost:3000", {
-          method: 'post',
-          headers,
-          body: JSON.stringify(data_to_send)
+        if(this.statut === 'Prêt'){
+          let data_to_send = ["start"];
+          let headers = {'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+                'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+          fetch("http://localhost:3000", {
+            method: 'post',
+            headers,
+            body: JSON.stringify(data_to_send)
 
-        })
-        .then(res=> res.json())
-        .then(data => {
-          console.log(JSON.stringify(data));
+          })
+          .then(res=> res.json())
+          .then(data => {
+            console.log(JSON.stringify(data));
 
-        });
+          });
+        }
       },
       get_statut(){
         let data_to_send = ["get_statut"];
@@ -110,16 +112,22 @@
         })
         .then(res=> res.json())
         .then(data => {
-          // console.log(JSON.stringify(data));
           if(data[1].statut == 1)
             this.statut = "En cours";
-          else
+          else if (data[1].statut == 2) {
+            this.statut = "Configuration non chargée";
+          }
+          else if (data[1].statut == 3){
+            this.statut = "En chauffe"
+          }
+          else{
             this.statut = "Prêt";
+          }
           // console.log(this.statut);
         });
       },
       get_configuration(){
-        let data_to_send = ["get_configuration"];
+        let data_to_send = ["get_configuration_courante"];
         let headers = {'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
               'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
@@ -133,9 +141,12 @@
         })
         .then(res=> res.json())
         .then(data => {
-          console.log(JSON.stringify(data));
-          this.configuration = data[1].name;
-          console.log(this.statut);
+          if(data[1] === null){
+            this.configuration = "Aucune (Veuillez sélectionnez une configuration)";
+          }
+          else{
+            this.configuration = data[1].nom;
+          }
         });
       }
     }
