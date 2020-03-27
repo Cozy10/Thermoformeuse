@@ -217,7 +217,7 @@ function startThermo(){
                 date : Date.now(),
                 action : "lancer_cycle",
                 zone_chauffe : configuration_courante.zone_chauffe
-            }) 
+            })
         }
         setTimeout(()=>{
             clearInterval(inter)
@@ -234,7 +234,7 @@ function initThermo(specifications_thermo){
     thermo.statut = 0
     thermo.zone_chauffe = new Array();
     for (let index = 0; index < specifications_thermo.nb_zones; index++) {
-        thermo.zone_chauffe[index] = 0;
+        thermo.zone_chauffe[index] = 20;
     }
 }
 

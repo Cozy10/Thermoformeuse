@@ -12,8 +12,10 @@ async function saveConfiguration(conf){
 
     await client.db(nomdb).collection("configurations").insertOne(conf, function(err, res) {
         if (err) throw err;
+        console.log(res);
         console.log("configuration bien enregistrée !!");
         client.close();
+        return res.insertedId;
     });
 }
 

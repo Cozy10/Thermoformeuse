@@ -35,6 +35,7 @@ export default {
       this.get_temp_seuil();
     },
     temp_seuils: function(){
+      console.log("a");
       this.Largeur_graphe = this.nb_zones*100 + this.margeX;
       this.Hauteur_graphe = d3.max(this.temp_seuils) + 100;
       this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
