@@ -26,7 +26,7 @@
             </v-toolbar>
           </template>
           <template v-slot:expanded-item="{ headers, item}">
-            <td :colspan="headers.length">{{item.temperatures}}</td>
+            <td :colspan="headers.length"><Graphe :itemId="item._id" /></td>
           </template>
         </v-data-table>
       </v-card>
@@ -35,9 +35,14 @@
 </template>
 
 <script>
+  import Graphe from './Graphe_logs.vue'
   export default {
     name: 'Logs',
+    components: {
+      Graphe,
+    },
     data: () => ({
+      dialog: false,
       expanded: [],
       search: '',
       headers: [
@@ -48,30 +53,29 @@
         ],
         logs: [],
       }),
-      mounted() {
-        this.initialize();
-      },
-      methods: {
-        initialize() {
-          let data_to_send = ["get_all_log"];
-          let headers = {'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
-                'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
-          fetch("http://localhost:3000", {
-            method: 'post',
-            headers,
-            body: JSON.stringify(data_to_send)
+    mounted() {
+      this.initialize();
+    },
+    methods: {
+      initialize() {
+        let data_to_send = ["get_all_log"];
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000", {
+          method: 'post',
+          headers,
+          body: JSON.stringify(data_to_send)
 
-          })
-          .then(res=> res.json())
-          .then(data => {
-            console.log(data[1]);
-            this.logs = data[1];
-          });
-        }
-      }
+        })
+        .then(res=> res.json())
+        .then(data => {
+          this.logs = data[1];
+        });
+      },
+    }
   }
 </script>

@@ -24,12 +24,12 @@
           <v-img v-if="statut==='Prêt'"
             :src="require('../assets/start.jpg')"
             contain
-            height="300"
+            :width="largeur_btn"
           />
           <v-img v-else
             :src="require('../assets/start_inactive.jpg')"
             contain
-            height="300"
+            :width="largeur_btn"
           />
         </v-btn>
       </v-col>
@@ -65,9 +65,11 @@
       timer: undefined,
       statut: "Configuration non chargée",
       configuration: "Aucune",
+      largeur_btn: undefined
     }
     ),
     mounted() {
+      this.largeur_btn = Math.floor(window.innerWidth*.2);
       this.timer = setInterval(this.get_statut, 1000);
       this.get_configuration();
     },

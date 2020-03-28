@@ -14,6 +14,12 @@ let configuration_courante = new Object();
 
 let fichier_specfications = fs.readFileSync('./specifications.json');
 let specifications_thermo = JSON.parse(fichier_specfications);
+let configuration_charger;
+dao.getConfigurationCourante().then(resultat => {
+  configuration_charger = resultat;
+  console.log(configuration_charger);
+})
+
 //spécifications physiques de la thermoformeuse: nombre de zone, nom des zones...
 
 initThermo(specifications_thermo)
@@ -72,6 +78,14 @@ app.post('/', (req, res)=> {
             res.json(reponse);
         });
     }
+    else if(body[0] === "get_detail_log"){
+      dao.getDetailLog(body[1]).then(resultat => {
+          reponse[0] = 100;
+          reponse[1] = resultat;
+          reponse[2] = "Récupérations des logs de "+body[1].toString();
+          res.json(reponse);
+      });
+    }
     else if(body[0] === "save_log"){
 
         dao.saveLog(body[1].log).then(()=>{
@@ -91,9 +105,9 @@ app.post('/', (req, res)=> {
 
     }
     else if(body[0] === "save_configuration"){
-      console.log(body);
-        dao.saveConfiguration(body[1]).then(() => {
+        dao.saveConfiguration(body[1]).then(resultat => {
             reponse[0] = 100;
+            reponse[1] = resultat;
             reponse[2] = "configuration sauvergardé";
             res.json(reponse);
         });
@@ -107,7 +121,6 @@ app.post('/', (req, res)=> {
     }
 
     else if (body[0] === "supprimer_configuration"){
-      console.log(body[1]);
       dao.deleteConfiguration(body[1]).then(() => {
           reponse[0] = 100;
           reponse[2] = "configuration supprimée";
@@ -115,13 +128,16 @@ app.post('/', (req, res)=> {
       });
     }
     else if (body[0] === "set_configuration_courante"){
-        dao.setConfigurationCourante(body[1].item._id)
+        dao.setConfigurationCourante(body[1].item._id).then(
+          dao.getConfigurationCourante().then(resultat => {
+            configuration_charger = resultat;
+          })
+        )
         let tab = new Array(specifications_thermo.nb_zones);
         for(let i=0; i<specifications_thermo.nb_zones; i++){
           tab[i] = body[1].item[specifications_thermo.nom_zone_chauffe[i]];
         }
         setTemperatureThermo(tab);
-        console.log(body[1])
         reponse[2] = "Modification de la configuration active";
         reponse[0] = 100;
         res.json(reponse);
@@ -173,7 +189,13 @@ function setTemperatureThermo(zone){
     for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
         id_int_tab[index] = setInterval(burn, 1000);
         function burn(){
-            if(thermo.zone_chauffe[index] >= configuration_courante.zone_chauffe[index]){
+            if(thermo.zone_chauffe[index] >= (Number(configuration_courante.zone_chauffe[index])+20)){
+                thermo.zone_chauffe[index]-= 15;
+            }
+            else if(thermo.zone_chauffe[index] < configuration_courante.zone_chauffe[index]){
+                thermo.zone_chauffe[index]+= 15;
+            }
+            else{
                 clearInterval(id_int_tab[index])
                 id_int_tab[index] = 0
                 let all_zero = 1
@@ -184,9 +206,6 @@ function setTemperatureThermo(zone){
                 }
                 if(all_zero == 1)
                     thermo.statut_thermo = 0
-            }
-            else{
-                thermo.zone_chauffe[index]+= 15;
             }
         }
     }
@@ -210,14 +229,22 @@ function startThermo(){
     else{
         thermo.statut_thermo = 1;
         console.log("Démarrage de la thermo!!");
-        let log = new Array()
-        let inter = setInterval(log_cycle, 1000)
+        let log = new Object();
+        log.date = Date.now();
+        log.action = "lancer_cycle";
+        log.configuration = configuration_charger.nom;
+        log.consigne = new Object();
+        log.temperatures = new Array();
+        let inter = setInterval(log_cycle, 1000);
         function log_cycle(){
-            log.push({
-                date : Date.now(),
-                action : "lancer_cycle",
-                zone_chauffe : configuration_courante.zone_chauffe
-            })
+            let temps = {
+              date: Date.now()-log.date
+            }
+            temps.values = new Object();
+            for(let i=0; i < specifications_thermo.nb_zones; i++){
+              temps.values[specifications_thermo.nom_zone_chauffe[i]] = thermo.zone_chauffe[i];
+            }
+            log.temperatures.push(temps);
         }
         setTimeout(()=>{
             clearInterval(inter)
