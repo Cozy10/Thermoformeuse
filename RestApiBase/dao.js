@@ -10,11 +10,13 @@ async function saveConfiguration(conf){
 
     await client.connect();
 
-    await client.db(nomdb).collection("configurations").insertOne(conf, function(err, res) {
-        if (err) throw err;
+    await client.db(nomdb).collection("configurations").insertOne(conf, function(err) {
+      if(err) throw err;
         console.log("configuration bien enregistrée !!");
         client.close();
     });
+    console.log(conf._id);
+    return await conf;
 }
 
 async function updateConfiguration(conf){
@@ -94,13 +96,27 @@ async function getAllLog(){
     try {
         await client.connect();
 
-        return await client.db(nomdb).collection("logs").find().toArray() ;
+        return await client.db(nomdb).collection("logs").find({}).project({"temperatures":false}).toArray() ;
 
     } catch (e) {
         throw (e);
     } finally {
         await client.close();
     }
+}
+
+async function getDetailLog(id_log){
+  const client = new MongoClient(url);
+  try {
+      await client.connect();
+
+      return await client.db(nomdb).collection("logs").findOne(new MongoObjectID(id_log));
+
+  } catch (e) {
+      throw (e);
+  } finally {
+      await client.close();
+  }
 }
 
 async function setConfigurationCourante(id_config){
@@ -139,6 +155,7 @@ exports.getAllConfiguration = getAllConfiguration
 exports.getConfigurationByNom = getConfigurationByNom
 exports.saveConfiguration = saveConfiguration
 exports.getAllLog = getAllLog
+exports.getDetailLog = getDetailLog
 exports.saveLog = saveLog
 exports.getConfigurationCourante = getConfigurationCourante
 exports.setConfigurationCourante = setConfigurationCourante

@@ -1,6 +1,9 @@
 <template>
-  <svg id="histogramme_temp">
-  </svg>
+  <v-container>
+
+    <svg id="histogramme_temp">
+    </svg>
+  </v-container>
 </template>
 
 <script>
@@ -14,14 +17,20 @@ export default {
       temp_seuils: undefined,
       margeX: 30,
       margeY: 20,
-      Largeur_graphe: undefined,
-      Hauteur_graphe: undefined,
+      Largeur_graphe: 800,
+      Hauteur_graphe: 500,
       Espacement_barres: 10,
       Largeur_barres: undefined,
       tab_zones: undefined,
     }),
   mounted() {
+    console.log(window.innerWidth*.7);
+    this.Hauteur_graphe = Math.floor(window.innerHeight*.6)
+    this.Largeur_graphe = Math.floor(window.innerWidth*.45);
     this.get_config();
+    if(this.tab_zones === undefined){
+      this.timer = setInterval(this.get_config, 1000);
+    }
   },
   destroyed: function(){
     clearInterval(this.timer);
@@ -32,11 +41,11 @@ export default {
       this.update();
     },
     tab_zones: function(){
+      clearInterval(this.timer);
       this.get_temp_seuil();
     },
     temp_seuils: function(){
-      this.Largeur_graphe = this.nb_zones*100 + this.margeX;
-      this.Hauteur_graphe = d3.max(this.temp_seuils) + 100;
+      console.log("a");
       this.Largeur_barres = this.Largeur_graphe/this.nb_zones;
       this.changeData();
       this.timer = setInterval(this.changeData, 1000);
@@ -72,6 +81,9 @@ export default {
           }
         }
       });
+    },
+    grille_selon_Y(AxeY) {
+      return d3.axisLeft(AxeY).ticks(10)
     },
     get_config(){
       let data_to_send = ["get_specifications_thermo"];
@@ -115,8 +127,8 @@ export default {
       var nb_zones = this.data.length;
       var margeX = this.margeX;
       var margeY = this.margeY;
-      var Largeur_graphe = nb_zones*this.Largeur_barres + margeX;
-      var Hauteur_graphe = d3.max(this.temp_seuils)*1.5 + margeY;
+      var Largeur_graphe = this.Largeur_graphe;
+      var Hauteur_graphe = this.Hauteur_graphe;
       var Espacement_barres = this.Espacement_barres;
       var Largeur_barres = (Largeur_graphe / nb_zones);
 
@@ -136,6 +148,17 @@ export default {
 
       var temp_ok = this.temp_bleues();
       var temp_pas_ok = this.temp_rouges();
+
+      svg.append("g")
+          .attr("class", "grille")
+          .attr("transform", "translate("+margeX+","+ -margeY +")")
+          .call(this.grille_selon_Y(AxeY)
+              .tickSize(-Largeur_graphe)
+              .tickFormat("")
+          );
+
+      svg.selectAll(".grille line").style("stroke", "lightgray");
+
 
       svg
       .append("g")
