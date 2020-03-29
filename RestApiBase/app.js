@@ -188,6 +188,7 @@ function setTemperatureThermo(zone){
     let id_int_tab = new Array();
     for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
         id_int_tab[index] = setInterval(burn, 1000);
+        // on fait grimpper les températures chaque seconde de 15
         function burn(){
             if(thermo.zone_chauffe[index] >= (Number(configuration_courante.zone_chauffe[index])+20)){
                 thermo.zone_chauffe[index]-= 15;
@@ -232,9 +233,9 @@ function startThermo(){
         let log = new Object();
         log.date = Date.now();
         log.action = "lancer_cycle";
-        log.configuration = configuration_charger.nom;
         log.consigne = new Object();
         log.temperatures = new Array();
+        //On enregistre les logs dans un tableau  à chaque secondes
         let inter = setInterval(log_cycle, 1000);
         function log_cycle(){
             let temps = {
@@ -248,6 +249,7 @@ function startThermo(){
         }
         setTimeout(()=>{
             clearInterval(inter)
+            // ON sauvegarde en base de données les logs à la fin dy cycle
             dao.saveLog(Object.assign({},log)).catch(e => console.error(e))
             thermo.statut_thermo = 0;
             console.log("Arrêt de la thermo!!");
