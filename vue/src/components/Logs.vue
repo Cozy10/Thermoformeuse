@@ -74,6 +74,10 @@
         .then(res=> res.json())
         .then(data => {
           this.logs = data[1];
+          for (let i=0; i<this.logs.length; i++){
+            let date = new Date(this.logs[i].date);
+            this.logs[i].date = date.toJSON();
+          }
         });
       },
     }
