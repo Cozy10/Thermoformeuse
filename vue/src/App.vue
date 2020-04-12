@@ -104,7 +104,7 @@
       activePage: 'Main',
       askPage: '',
       pwd: '',
-      pwdServ: 'bonjourn',
+      pwdServ: undefined,
       pwdError: false,
     }),
     watch: {
@@ -124,23 +124,32 @@
     methods: {
       changePage(name) {
         this.askPage = name;
-        if(this.pwdServ === '' || this.pwdServ === undefined){
-          this.activePage = this.askPage;
-        }
-        else{
-          this.dialog = true;
-        }
+        this.dialog = true;
       },
       checkPwd(){
-        console.log("checkPwd");
-        if(this.pwd === this.pwdServ){
-          this.dialog = false;
-          this.activePage = this.askPage;
-          this.pwd = '';
-        }
-        else{
-          this.pwdError = true;
-        }
+        let data_to_send = ["auth", this.pwd];
+        let headers = {'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+              'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+        fetch("http://localhost:3000", {
+          method: 'post',
+          headers,
+          body: JSON.stringify(data_to_send)
+        })
+        .then(res=> res.json())
+        .then(data => {
+          if(data[1] === 1){
+            this.dialog = false;
+            this.activePage = this.askPage;
+            this.pwd = '';
+          }
+          else{
+            this.pwdError = true;
+          }
+        });
       }
 
     }

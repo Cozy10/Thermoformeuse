@@ -4,7 +4,6 @@ let cors = require('cors')
 let dao = require('./dao')
 const fs = require('fs')
 
-
 let app = express()
 let port = 3000
 
@@ -158,12 +157,28 @@ app.post('/', (req, res)=> {
         reponse[2] = "Récupération de la configuration active dans la thermo";
         res.json(reponse);
     }
+    else if (body[0] === "auth"){
+        auth(body[1]).then(resultat=>{
+            reponse[0] = 100;
+            reponse[1] = resultat
+            reponse[2] = "Authentification utilisateur";
+            res.json(reponse);
+        })
+    }
+    else if (body[0] === "set_password"){
+        setPassword(body[1]).then(()=>{
+            reponse[0] = 100;
+            reponse[2] = "Modification mot de passe";
+            res.json(reponse);
+        })
+    }
     else {
         console.log(body);
         reponse[0] = 300;
         reponse[2] = "Veuillez entrer dans le champ \"method\" une action valide !!!";
         res.json(reponse);
     }
+
 
 })
 
@@ -188,6 +203,7 @@ function setTemperatureThermo(zone){
     let id_int_tab = new Array();
     for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
         id_int_tab[index] = setInterval(burn, 1000);
+        // on fait grimpper les températures chaque seconde de 15
         function burn(){
             if(thermo.zone_chauffe[index] >= (Number(configuration_courante.zone_chauffe[index])+20)){
                 thermo.zone_chauffe[index]-= 15;
@@ -232,9 +248,9 @@ function startThermo(){
         let log = new Object();
         log.date = Date.now();
         log.action = "lancer_cycle";
-        log.configuration = configuration_charger.nom;
         log.consigne = new Object();
         log.temperatures = new Array();
+        //On enregistre les logs dans un tableau  à chaque secondes
         let inter = setInterval(log_cycle, 1000);
         function log_cycle(){
             let temps = {
@@ -248,6 +264,7 @@ function startThermo(){
         }
         setTimeout(()=>{
             clearInterval(inter)
+            // ON sauvegarde en base de données les logs à la fin dy cycle
             dao.saveLog(Object.assign({},log)).catch(e => console.error(e))
             thermo.statut_thermo = 0;
             console.log("Arrêt de la thermo!!");
@@ -267,5 +284,39 @@ function initThermo(specifications_thermo){
 
 
 
+async function auth(pass){
+    mdp = await fs.readFileSync('mdp.json', function(err){
+        if(err){
+            console.error("Erreur de lecture du fichier")
+            return console.log(err)
+        }
+    });
+
+    mdp_parsed = JSON.parse(mdp);
+    if(pass === mdp_parsed.password ){
+        return 1;
+    }
+    return 0;
+}
+
+async function setPassword(pass){
+
+    let mdp = await fs.readFileSync('mdp.json', function(err){
+        if(err){
+            console.error("Erreur de lecture du fichier")
+            return console.log(err)
+        }
+    });
+
+    mdp_parsed = JSON.parse(mdp);
+    console.log(mdp_parsed.password);
+    mdp_parsed.password = pass;
+    await fs.writeFileSync('mdp.json', JSON.stringify(mdp_parsed), function(err){
+        if(err){
+            console.error("Erreur d'écriture du fichier")
+            return console.log(err)
+        }
+    });
+}
 
 //sauvegarde des températures dans les logs toutes les x secondes (date, action , reglages courante, tableau)

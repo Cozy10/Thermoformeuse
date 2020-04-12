@@ -42,7 +42,21 @@
     methods: {
       setPassword() {
         if(this.valid){
-          console.log(this.pwd);
+          let data_to_send = ["set_password", this.pwd];
+          let headers = {'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS, DELETE',
+                'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+          fetch("http://localhost:3000", {
+            method: 'post',
+            headers,
+            body: JSON.stringify(data_to_send)
+          })
+          .then(() => {
+            console.log("Mot de passe changé avec succès");
+          });
         }
       }
     }
