@@ -37,7 +37,6 @@
       .then(data => {
         this.log = data[1];
         this.nom_zones = Object.keys(data[1].temperatures[0].values);
-        console.log(this.nom_zones);
         this.tracerGraphe();
       });
     },
