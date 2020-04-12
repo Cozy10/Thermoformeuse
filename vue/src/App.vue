@@ -124,7 +124,12 @@
     methods: {
       changePage(name) {
         this.askPage = name;
-        this.dialog = true;
+        if(this.pwdServ === '' || this.pwdServ === undefined){
+          this.activePage = this.askPage;
+        }
+        else{
+          this.dialog = true;
+        }
       },
       checkPwd(){
         console.log("checkPwd");
