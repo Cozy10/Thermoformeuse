@@ -15,6 +15,7 @@
         log: undefined,
         couleurs: ["#ff0000","#0000ff","#ffff00","#000000","#800000","#ffa500","#008000","#800080","#ffd700","#ff00ff","#00ffff","#ffc0cb","#00ffff","#f0ffff","#f5f5dc","#a52a2a","#00008b","#008b8b","#a9a9a9","#006400","#bdb76b","#8b008b","#556b2f","#ff8c00","#9932cc","#8b0000","#e9967a","#9400d3","#ff00ff","#4b0082","#f0e68c","#add8e6","#e0ffff","#90ee90","#d3d3d3","#ffb6c1","#ffffe0","#00ff00","#000080","#808000","#800080","#c0c0c0",],
         largeur_graphe: undefined,
+        nom_zones: undefined,
       }
     },
     mounted() {
@@ -35,6 +36,8 @@
       .then(res=> res.json())
       .then(data => {
         this.log = data[1];
+        this.nom_zones = Object.keys(data[1].temperatures[0].values);
+        console.log(this.nom_zones);
         this.tracerGraphe();
       });
     },
@@ -148,10 +151,7 @@
             .attr("cy",function(d) {return AxeY(d)-margeY; });
         }
 
-        var legend_keys = [];
-        for(var i = 1; i <= nb_zones; i++){
-          legend_keys.push("Z" + i);
-        }
+        var legend_keys = this.nom_zones;
 
         var Legende = svg.selectAll(".Legende").data(legend_keys)
                         .enter()
