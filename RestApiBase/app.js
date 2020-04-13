@@ -5,7 +5,7 @@ let dao = require('./dao')
 const fs = require('fs')
 
 let app = express()
-let port = 3000
+let port = 8080
 
 let thermo = new Object();
 
@@ -182,8 +182,8 @@ app.post('/', (req, res)=> {
 
 })
 
+app.use(express.static('public'));
 
-app.post('/preset')
 app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
 

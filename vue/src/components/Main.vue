@@ -73,6 +73,7 @@
     },
     mounted() {
       console.log("ipAd" + this.ipAd);
+      console.log(document.URL);
       this.largeur_btn = Math.floor(window.innerWidth*.2);
       this.timer = setInterval(this.get_statut, 1000);
       this.get_configuration();

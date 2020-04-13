@@ -98,7 +98,7 @@
     },
 
     data: () => ({
-      ip: "http://localhost:3000",
+      ip: document.URL,
       dialog: false,
       show: true,
       active: [false, false, false, false],
