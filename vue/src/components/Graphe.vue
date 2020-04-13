@@ -10,7 +10,10 @@
 import * as d3 from 'd3';
 export default {
   name: 'vue-line-chart',
-  data: () => ({
+  props: ['ip'],
+  data: function(){
+    return {
+      ipAd: this.ip,
       data: undefined,
       timer: undefined,
       nb_zones: undefined,
@@ -22,7 +25,8 @@ export default {
       Espacement_barres: 10,
       Largeur_barres: undefined,
       tab_zones: undefined,
-    }),
+    }
+  },
   mounted() {
     console.log(window.innerWidth*.7);
     this.Hauteur_graphe = Math.floor(window.innerHeight*.6);
@@ -60,7 +64,7 @@ export default {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-      fetch("http://localhost:3000", {
+      fetch(this.ipAd, {
         method: 'post',
         headers,
         body: JSON.stringify(data_to_send)
@@ -93,7 +97,7 @@ export default {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-      fetch("http://localhost:3000", {
+      fetch(this.ipAd, {
         method: 'post',
         headers,
         body: JSON.stringify(data_to_send)
@@ -113,7 +117,7 @@ export default {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-      fetch("http://localhost:3000", {
+      fetch(this.ipAd, {
         method: 'post',
         headers,
         body: JSON.stringify(data_to_send)

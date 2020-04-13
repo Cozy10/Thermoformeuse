@@ -15,7 +15,7 @@
       <v-col cols="1">
       </v-col>
       <v-col cols="6">
-        <Graphe/>
+        <Graphe :ip="ipAd"/>
       </v-col>
       <v-col cols="2">
       </v-col>
@@ -58,17 +58,21 @@
   import Graphe from './Graphe.vue'
   export default {
     name: 'Main',
+    props: ['ip'],
     components: {
       Graphe,
     },
-    data: () => ({
-      timer: undefined,
-      statut: "Configuration non chargée",
-      configuration: "Aucune",
-      largeur_btn: undefined
-    }
-    ),
+    data: function() {
+      return {
+        ipAd: this.ip,
+        timer: undefined,
+        statut: "Configuration non chargée",
+        configuration: "Aucune",
+        largeur_btn: undefined
+      };
+    },
     mounted() {
+      console.log("ipAd" + this.ipAd);
       this.largeur_btn = Math.floor(window.innerWidth*.2);
       this.timer = setInterval(this.get_statut, 1000);
       this.get_configuration();
@@ -86,7 +90,7 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               }
-          fetch("http://localhost:3000", {
+          fetch(this.ip, {
             method: 'post',
             headers,
             body: JSON.stringify(data_to_send)
@@ -107,7 +111,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000", {
+        fetch(this.ipAd, {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)
@@ -136,7 +140,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000", {
+        fetch(this.ipAd, {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)
