@@ -4,7 +4,6 @@ let cors = require('cors')
 let dao = require('./dao')
 const fs = require('fs')
 
-
 let app = express()
 let port = 3000
 
@@ -158,12 +157,28 @@ app.post('/', (req, res)=> {
         reponse[2] = "Récupération de la configuration active dans la thermo";
         res.json(reponse);
     }
+    else if (body[0] === "auth"){
+        auth(body[1]).then(resultat=>{
+            reponse[0] = 100;
+            reponse[1] = resultat
+            reponse[2] = "Authentification utilisateur";
+            res.json(reponse);
+        })
+    }
+    else if (body[0] === "set_password"){
+        setPassword(body[1]).then(()=>{
+            reponse[0] = 100;
+            reponse[2] = "Modification mot de passe";
+            res.json(reponse);
+        })
+    }
     else {
         console.log(body);
         reponse[0] = 300;
         reponse[2] = "Veuillez entrer dans le champ \"method\" une action valide !!!";
         res.json(reponse);
     }
+
 
 })
 
@@ -269,5 +284,39 @@ function initThermo(specifications_thermo){
 
 
 
+async function auth(pass){
+    mdp = await fs.readFileSync('mdp.json', function(err){
+        if(err){
+            console.error("Erreur de lecture du fichier")
+            return console.log(err)
+        }
+    });
+
+    mdp_parsed = JSON.parse(mdp);
+    if(pass === mdp_parsed.password ){
+        return 1;
+    }
+    return 0;
+}
+
+async function setPassword(pass){
+
+    let mdp = await fs.readFileSync('mdp.json', function(err){
+        if(err){
+            console.error("Erreur de lecture du fichier")
+            return console.log(err)
+        }
+    });
+
+    mdp_parsed = JSON.parse(mdp);
+    console.log(mdp_parsed.password);
+    mdp_parsed.password = pass;
+    await fs.writeFileSync('mdp.json', JSON.stringify(mdp_parsed), function(err){
+        if(err){
+            console.error("Erreur d'écriture du fichier")
+            return console.log(err)
+        }
+    });
+}
 
 //sauvegarde des températures dans les logs toutes les x secondes (date, action , reglages courante, tableau)

@@ -14,7 +14,8 @@
         id: this.itemId,
         log: undefined,
         couleurs: ["#ff0000","#0000ff","#ffff00","#000000","#800000","#ffa500","#008000","#800080","#ffd700","#ff00ff","#00ffff","#ffc0cb","#00ffff","#f0ffff","#f5f5dc","#a52a2a","#00008b","#008b8b","#a9a9a9","#006400","#bdb76b","#8b008b","#556b2f","#ff8c00","#9932cc","#8b0000","#e9967a","#9400d3","#ff00ff","#4b0082","#f0e68c","#add8e6","#e0ffff","#90ee90","#d3d3d3","#ffb6c1","#ffffe0","#00ff00","#000080","#808000","#800080","#c0c0c0",],
-        largeur_graphe: 1000,
+        largeur_graphe: undefined,
+        nom_zones: undefined,
       }
     },
     mounted() {
@@ -35,6 +36,7 @@
       .then(res=> res.json())
       .then(data => {
         this.log = data[1];
+        this.nom_zones = Object.keys(data[1].temperatures[0].values);
         this.tracerGraphe();
       });
     },
@@ -73,6 +75,7 @@
       },
       dessiner_nuage(data, tab_temps){
         var nb_zones = data.length;
+        var nb_mesures = data[0].log;
         // var nb_mesures = data[0].length;
         var margeX = 30;
         var margeY = 20;
@@ -80,8 +83,8 @@
         var Largeur_graphe = this.largeur_graphe;
 
         var AxeY = d3.scaleLinear()
-                    .domain([Hauteur_graphe,0])
-                    .range([0,Hauteur_graphe])
+                .domain([this.temp_max(data)+100,0])
+                .range([0,Hauteur_graphe])
 
         var AxeX = d3.scalePoint()
                     .domain(tab_temps)
@@ -107,8 +110,23 @@
         svg.selectAll(".grille line").style("stroke", "lightgray");
 
         svg.append("g")
-            .attr("transform", "translate("+ margeX +","+(Hauteur_graphe-margeY)+")")
-            .call(d3.axisBottom(AxeX));
+        .attr("transform", "translate("+ margeX +","+(Hauteur_graphe-margeY)+")")
+        .call(d3.axisBottom(AxeX).tickFormat(function(d, i){
+            if(Largeur_graphe/nb_mesures < 14){
+                if(Largeur_graphe/nb_mesures < 3.5){
+                    if(i%10 == 0){
+                        return i;
+                    }
+                    return("");
+                }
+                if(i%5 == 0){
+                    return i;
+                }
+                return("");
+            }
+            return i;
+        }));
+
         let couleurs = this.couleurs;
         for(var n = 0; n < nb_zones; n++){
             svg.datum(data[n])
@@ -132,10 +150,7 @@
             .attr("cy",function(d) {return AxeY(d)-margeY; });
         }
 
-        var legend_keys = [];
-        for(var i = 1; i <= nb_zones; i++){
-          legend_keys.push("Z" + i);
-        }
+        var legend_keys = this.nom_zones;
 
         var Legende = svg.selectAll(".Legende").data(legend_keys)
                         .enter()

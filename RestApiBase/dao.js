@@ -7,7 +7,7 @@ var nomdb = "test_db";
 async function saveConfiguration(conf){
 
     const client = new MongoClient(url);
-
+    Mon
     await client.connect();
 
     await client.db(nomdb).collection("configurations").insertOne(conf, function(err) {

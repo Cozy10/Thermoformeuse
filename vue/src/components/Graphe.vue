@@ -25,8 +25,8 @@ export default {
     }),
   mounted() {
     console.log(window.innerWidth*.7);
-    this.Hauteur_graphe = Math.floor(window.innerHeight*.6)
-    this.Largeur_graphe = Math.floor(window.innerWidth*.45);
+    this.Hauteur_graphe = Math.floor(window.innerHeight*.6);
+    this.Largeur_graphe = Math.floor(window.innerWidth*.45)+this.margeX;
     this.get_config();
     if(this.tab_zones === undefined){
       this.timer = setInterval(this.get_config, 1000);
@@ -135,7 +135,7 @@ export default {
       var tab_zones = this.tab_zones;
 
       var AxeY = d3.scaleLinear()
-          .domain([Hauteur_graphe,0])
+          .domain([d3.max(this.data)+150,0])
           .range([0,Hauteur_graphe])
 
       var AxeX = d3.scaleBand()
@@ -148,6 +148,10 @@ export default {
 
       var temp_ok = this.temp_bleues();
       var temp_pas_ok = this.temp_rouges();
+      for(var i = 0; i < nb_zones; i++){
+        temp_pas_ok[i] = Hauteur_graphe - AxeY(temp_pas_ok[i]);
+        temp_ok[i] = Hauteur_graphe - AxeY(temp_ok[i]);
+      }
 
       svg.append("g")
           .attr("class", "grille")
