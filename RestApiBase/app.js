@@ -58,7 +58,7 @@ app.post('/', (req, res)=> {
         })
     }
     else if(body[0] === "start"){
-        if (startThermo_nous() == 1){
+        if (start() == 1){
             reponse[0] = 100;
             reponse[2] = "La thermoformeuse a bien démarrée!!!^^";
         }
@@ -192,7 +192,7 @@ function setTemperatureThermo(zone){
 }
 
 
-function startThermo_nous(){
+function start(){
     if(getStatutThermo() == 1)
     {
         return 0;
