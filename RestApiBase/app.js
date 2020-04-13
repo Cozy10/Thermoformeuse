@@ -58,7 +58,7 @@ app.post('/', (req, res)=> {
         })
     }
     else if(body[0] === "start"){
-        if (startThermo() == 1){
+        if (startThermo_nous() == 1){
             reponse[0] = 100;
             reponse[2] = "La thermoformeuse a bien démarrée!!!^^";
         }
@@ -186,89 +186,43 @@ app.post('/', (req, res)=> {
 app.post('/preset')
 app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
-function getTemperatureThermo(){
-    console.log("Récupération des valeurs de température des zones de chauffe")
-    return thermo.zone_chauffe
-}
-
-function getTemperatureAmbianteThermo(){
-    console.log("Récupération de la température ambiante")
-    return 3;reponse[0] = 100;
-}
 
 function setTemperatureThermo(zone){
-    console.log("Modification des températures des zones de chauffe par :" + JSON.stringify(zone));
-    configuration_courante.zone_chauffe = zone
-    thermo.statut_thermo = 3
-    let id_int_tab = new Array();
-    for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
-        id_int_tab[index] = setInterval(burn, 1000);
-        // on fait grimpper les températures chaque seconde de 15
-        function burn(){
-            if(thermo.zone_chauffe[index] >= (Number(configuration_courante.zone_chauffe[index])+20)){
-                thermo.zone_chauffe[index]-= 15;
-            }
-            else if(thermo.zone_chauffe[index] < configuration_courante.zone_chauffe[index]){
-                thermo.zone_chauffe[index]+= 15;
-            }
-            else{
-                clearInterval(id_int_tab[index])
-                id_int_tab[index] = 0
-                let all_zero = 1
-                for (let i = 0; i < id_int_tab.length; i++) {
-                    const element = id_int_tab[i];
-                    if(element != 0)
-                        all_zero = 0
-                }
-                if(all_zero == 1)
-                    thermo.statut_thermo = 0
-            }
-        }
-    }
-}
-
-function getStatutThermo(){
-    if (thermo.statut_thermo == 1) {
-        console.log("Statut de la machine : Marche");
-    } else {
-        console.log("Statut de la machine : Stop");
-    }
-    return thermo.statut_thermo;
+    setTemperature(zone);
 }
 
 
-function startThermo(){
+function startThermo_nous(){
     if(getStatutThermo() == 1)
     {
         return 0;
     }
     else{
-        thermo.statut_thermo = 1;
-        console.log("Démarrage de la thermo!!");
         let log = new Object();
         log.date = Date.now();
         log.action = "lancer_cycle";
         log.consigne = new Object();
         log.temperatures = new Array();
+
+        startThermo();
         //On enregistre les logs dans un tableau  à chaque secondes
         let inter = setInterval(log_cycle, 1000);
         function log_cycle(){
-            let temps = {
-              date: Date.now()-log.date
+            if(getStatutThermo() == 0){
+              clearInterval(inter);
+              dao.saveLog(Object.assign({},log)).catch(e => console.error(e))
             }
-            temps.values = new Object();
-            for(let i=0; i < specifications_thermo.nb_zones; i++){
-              temps.values[specifications_thermo.nom_zone_chauffe[i]] = thermo.zone_chauffe[i];
+            else{
+              let temps = {
+                date: Date.now()-log.date
+              }
+              temps.values = new Object();
+              for(let i=0; i < specifications_thermo.nb_zones; i++){
+                temps.values[specifications_thermo.nom_zone_chauffe[i]] = thermo.zone_chauffe[i];
+              }
+              log.temperatures.push(temps);
             }
-            log.temperatures.push(temps);
         }
-        setTimeout(()=>{
-            clearInterval(inter)
-            // ON sauvegarde en base de données les logs à la fin dy cycle
-            dao.saveLog(Object.assign({},log)).catch(e => console.error(e))
-            thermo.statut_thermo = 0;
-            console.log("Arrêt de la thermo!!");
-        },30000)
         return 1;
     }
 }
@@ -317,6 +271,68 @@ async function setPassword(pass){
             return console.log(err)
         }
     });
+}
+
+// fonction à remplacer par les vrais accesseur de données
+
+function getTemperatureThermo(){
+    console.log("Récupération des valeurs de température des zones de chauffe")
+    return thermo.zone_chauffe
+}
+
+function getTemperatureAmbianteThermo(){
+    console.log("Récupération de la température ambiante")
+    return 3;
+}
+
+function getStatutThermo(){
+    if (thermo.statut_thermo == 1) {
+        console.log("Statut de la machine : Marche");
+    } else {
+        console.log("Statut de la machine : Stop");
+    }
+    return thermo.statut_thermo;
+}
+
+function startThermo(){
+  thermo.statut_thermo = 1;
+  console.log("Démarrage de la thermo!!");
+  setTimeout(()=>{
+      // ON sauvegarde en base de données les logs à la fin dy cycle
+      thermo.statut_thermo = 0;
+      console.log("Arrêt de la thermo!!");
+  },30000);
+}
+
+function setTemperature(zone){
+  console.log("Modification des températures des zones de chauffe par :" + JSON.stringify(zone));
+  configuration_courante.zone_chauffe = zone
+  thermo.statut_thermo = 3
+  let id_int_tab = new Array();
+  for (let index = 0; index < configuration_courante.zone_chauffe.length; index++) {
+      id_int_tab[index] = setInterval(burn, 1000);
+      // on fait grimpper les températures chaque seconde de 15
+      function burn(){
+          if(thermo.zone_chauffe[index] >= (Number(configuration_courante.zone_chauffe[index])+20)){
+              thermo.zone_chauffe[index]-= 15;
+          }
+          else if(thermo.zone_chauffe[index] < configuration_courante.zone_chauffe[index]){
+              thermo.zone_chauffe[index]+= 15;
+          }
+          else{
+              clearInterval(id_int_tab[index])
+              id_int_tab[index] = 0
+              let all_zero = 1
+              for (let i = 0; i < id_int_tab.length; i++) {
+                  const element = id_int_tab[i];
+                  if(element != 0)
+                      all_zero = 0
+              }
+              if(all_zero == 1)
+                  thermo.statut_thermo = 0
+          }
+      }
+  }
 }
 
 //sauvegarde des températures dans les logs toutes les x secondes (date, action , reglages courante, tableau)
