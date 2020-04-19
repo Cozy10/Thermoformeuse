@@ -138,7 +138,6 @@
           // Création de la barre de titre
           this.nom_zone_chauffe = d[1].nom_zone_chauffe;
           this.headers = [{text: 'Nom', value: 'nom'}];
-          this.headers = this.headers.concat(d[1].nom_zone_chauffe);
           for(let i=0; i<d[1].nb_zones; i++){
             this.headers.push({text: d[1].nom_zone_chauffe[i], value: d[1].nom_zone_chauffe[i]});
           }

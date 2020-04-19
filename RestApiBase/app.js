@@ -1,7 +1,7 @@
 let express = require('express')
 let bodyparser = require('body-parser')
 let cors = require('cors')
-let dao = require('./dao')
+let dao = require('./lib/dao')
 const fs = require('fs')
 
 let app = express()
@@ -203,6 +203,7 @@ function start(){
         log.action = "lancer_cycle";
         log.consigne = new Object();
         log.temperatures = new Array();
+        dao.getConfigurationCourante().then(resultat => log.configuration = resultat.nom);
 
         startThermo();
         //On enregistre les logs dans un tableau  à chaque secondes
