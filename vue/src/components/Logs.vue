@@ -6,6 +6,7 @@
           :headers="headers"
           :items="logs"
           :items-per-page="15"
+          :single-expand="false"
           :expanded.sync="expanded"
           item-key="_id"
           show-expand
@@ -26,7 +27,11 @@
             </v-toolbar>
           </template>
           <template v-slot:expanded-item="{ headers, item}">
-            <td :colspan="headers.length"><Graphe :itemId="item._id" :ip="ipAd"/></td>
+            <td :colspan="headers.length">
+              <v-container>
+                <Graphe :itemId="item._id" :ip="ipAd"/>
+              </v-container>
+            </td>
           </template>
         </v-data-table>
       </v-card>

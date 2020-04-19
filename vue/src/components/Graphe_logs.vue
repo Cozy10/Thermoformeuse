@@ -1,7 +1,5 @@
 <template>
-  <v-container>
-    <svg></svg>
-  </v-container>
+  <svg></svg>
 </template>
 
 <script>
@@ -91,9 +89,7 @@
                     .domain(tab_temps)
                     .range([0,Largeur_graphe])
 
-
-
-        var svg = d3.select("svg")
+        var svg = d3.select(this.$el)
             .attr("width", Largeur_graphe+100+margeX)
             .attr("height", Hauteur_graphe+100);
         svg.append("g")

@@ -188,8 +188,32 @@ app.listen(port, ()=>{console.log(`Test app listenning a ${port}!`)});
 
 
 function setTemperatureThermo(zone){
+    let log = new Object;
+    log.date = Date.now();
+    log.action = "préchauffage";
+    log.consigne = new Object();
+    log.temperatures = new Array();
     setTemperature(zone);
-}
+    let inter = setInterval(log_chauffage, 1000);
+    function log_chauffage(){
+      if(getStatutThermo() !== 3){
+        clearInterval(inter);
+        dao.getConfigurationCourante().then(resultat => log.configuration = resultat.nom).then(res =>
+          dao.saveLog(Object.assign({},log)).catch(e => console.error(e))
+        )
+      }
+      else{
+        let temps = {
+          date: Date.now()-log.date
+        }
+        temps.values = new Object();
+        for(let i=0; i < specifications_thermo.nb_zones; i++){
+          temps.values[specifications_thermo.nom_zone_chauffe[i]] = thermo.zone_chauffe[i];
+        }
+        log.temperatures.push(temps);
+      }
+    }
+};
 
 
 function start(){
@@ -273,6 +297,8 @@ async function setPassword(pass){
         }
     });
 }
+
+
 
 // fonction à remplacer par les vrais accesseur de données
 
