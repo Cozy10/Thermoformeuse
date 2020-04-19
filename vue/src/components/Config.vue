@@ -116,7 +116,7 @@
 
     methods: {
       deleteItems(){
-        confirm('Êtes-vous sûre de vouloir supprimer cet configuration') && this.selected.forEach((item) => {
+        confirm('Êtes-vous sûr.e de vouloir supprimer cette configuration') && this.selected.forEach((item) => {
           this.deleteItem(item)
         });
       },
