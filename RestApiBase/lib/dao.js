@@ -1,13 +1,12 @@
 var MongoClient = require('mongodb').MongoClient;
 var MongoObjectID = require("mongodb").ObjectID;
 var url = "mongodb://localhost:27017/";
-var nomdb = "test_db";
+var nomdb = "interface_thermo";
 
 
 async function saveConfiguration(conf){
 
     const client = new MongoClient(url);
-    Mon
     await client.connect();
 
     await client.db(nomdb).collection("configurations").insertOne(conf, function(err) {

@@ -8,9 +8,10 @@
   import * as d3 from 'd3';
   export default {
     name: 'Graphe_logs',
-    props: ['itemId'],
+    props: ['itemId', "ip"],
     data: function() {
       return {
+        ipAd: this.ip,
         id: this.itemId,
         log: undefined,
         couleurs: ["#ff0000","#0000ff","#ffff00","#000000","#800000","#ffa500","#008000","#800080","#ffd700","#ff00ff","#00ffff","#ffc0cb","#00ffff","#f0ffff","#f5f5dc","#a52a2a","#00008b","#008b8b","#a9a9a9","#006400","#bdb76b","#8b008b","#556b2f","#ff8c00","#9932cc","#8b0000","#e9967a","#9400d3","#ff00ff","#4b0082","#f0e68c","#add8e6","#e0ffff","#90ee90","#d3d3d3","#ffb6c1","#ffffe0","#00ff00","#000080","#808000","#800080","#c0c0c0",],
@@ -27,7 +28,7 @@
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-      fetch("http://localhost:3000", {
+      fetch(this.ipAd, {
         method: 'post',
         headers,
         body: JSON.stringify(data_to_send)

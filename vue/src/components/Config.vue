@@ -78,21 +78,25 @@
 
 <script>
   export default {
-    data: () => ({
-      dialog: false,
-      selected: [],
-      search:'',
-      headers: [],
-      config: [],
-      editedIndex: -1,
-      editedItem: {
+    props: ['ip'],
+    data: function(){
+      return {
+        ipAd: this.ip,
+        dialog: false,
+        selected: [],
+        search:'',
+        headers: [],
+        config: [],
+        editedIndex: -1,
+        editedItem: {
 
-      },
-      nom_zone_chauffe: undefined,
-      defaultItem: {
+        },
+        nom_zone_chauffe: undefined,
+        defaultItem: {
 
-      },
-    }),
+        },
+      }
+    },
 
     computed: {
       formTitle () {
@@ -124,7 +128,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000",{
+        fetch(this.ipAd,{
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)
@@ -134,7 +138,6 @@
           // Création de la barre de titre
           this.nom_zone_chauffe = d[1].nom_zone_chauffe;
           this.headers = [{text: 'Nom', value: 'nom'}];
-          this.headers = this.headers.concat(d[1].nom_zone_chauffe);
           for(let i=0; i<d[1].nb_zones; i++){
             this.headers.push({text: d[1].nom_zone_chauffe[i], value: d[1].nom_zone_chauffe[i]});
           }
@@ -142,7 +145,7 @@
 
           //Insertion des donnéee
           data_to_send = ["get_all_configurations"];
-          fetch("http://localhost:3000", {
+          fetch(this.ipAd, {
             method: 'post',
             headers,
             body: JSON.stringify(data_to_send)
@@ -173,7 +176,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000", {
+        fetch(this.ipAd, {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)
@@ -203,7 +206,7 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               }
-          fetch("http://localhost:3000", {
+          fetch(this.ipAd, {
             method: 'post',
             headers,
             body: JSON.stringify(data_to_send)
@@ -223,7 +226,7 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               }
-          fetch("http://localhost:3000", {
+          fetch(this.ipAd, {
             method: 'post',
             headers,
             body: JSON.stringify(data_to_send)
@@ -246,7 +249,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000", {
+        fetch(this.ipAd, {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)

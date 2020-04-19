@@ -26,7 +26,7 @@
             </v-toolbar>
           </template>
           <template v-slot:expanded-item="{ headers, item}">
-            <td :colspan="headers.length"><Graphe :itemId="item._id" /></td>
+            <td :colspan="headers.length"><Graphe :itemId="item._id" :ip="ipAd"/></td>
           </template>
         </v-data-table>
       </v-card>
@@ -41,18 +41,22 @@
     components: {
       Graphe,
     },
-    data: () => ({
-      dialog: false,
-      expanded: [],
-      search: '',
-      headers: [
-          { text: 'Date', value: 'date' },
-          { text: 'Action', value: 'action', sortable: false },
-          { text: 'Préréglage', value: 'configuration', sortable: false},
-          { text: '', value: 'data-table-expand' },
-        ],
-        logs: [],
-      }),
+    props: ['ip'],
+    data: function(){
+      return {
+        ipAd:this.ip,
+        dialog: false,
+        expanded: [],
+        search: '',
+        headers: [
+            { text: 'Date', value: 'date' },
+            { text: 'Action', value: 'action', sortable: false },
+            { text: 'Préréglage', value: 'configuration', sortable: false},
+            { text: '', value: 'data-table-expand' },
+          ],
+          logs: [],
+      }
+    },
     mounted() {
       this.initialize();
     },
@@ -65,7 +69,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000", {
+        fetch(this.ipAd, {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)

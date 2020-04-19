@@ -18,8 +18,8 @@ const messages = {
   fr: {
     $vuetify: {
       dataIterator: {
-        rowsPerPageText: 'Element per sida:',
-        pageText: '{0}-{1} sur {2}',
+        rowsPerPageText: 'Élements par page',
+        pageText: 'Affiché : {0} à {1} sur {2} au total',
         noResultsText: "Aucune donnée trouvée",
       },
       dataTable: {
@@ -29,12 +29,12 @@ const messages = {
         }
       },
       dataFooter: {
-        pageText: '{0}-{1} sur {2}',
+        pageText: 'Affiché : {0} à {1} sur {2} au total',
         itemsPerPageAll: 'Afficher les tous !',
         prevPage: "Page précédente",
-        nextPage: "Page suivant",
+        nextPage: "Page suivante",
       },
-      noDataText:"Aucune donné trouvé"
+      noDataText:"Aucune donnée trouvée"
     },
   },
 }

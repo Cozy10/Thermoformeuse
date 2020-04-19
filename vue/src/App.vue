@@ -1,16 +1,16 @@
 <template>
   <v-app>
+    <!-- Headers -->
     <v-app-bar app color="green" dark>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
       <img alt="Graphe temp" src="./assets/logo.png" height=80%/>
       <v-spacer></v-spacer>
     </v-app-bar>
     <v-content>
-        <Main v-if="activePage === 'Main'"/>
-        <Logs v-else-if="activePage === 'Logs'"/>
-        <Config v-else-if="activePage === 'Config'"/>
-        <ChangePwd v-else />
-
+        <Main v-if="activePage === 'Main'" :ip="ip"/>
+        <Logs v-else-if="activePage === 'Logs'" :ip="ip"/>
+        <Config v-else-if="activePage === 'Config'" :ip="ip"/>
+        <ChangePwd v-else :ip="ip"/>
     </v-content>
     <v-navigation-drawer v-model="drawer" fixed temporary>
       <v-list nav dense>
@@ -45,6 +45,7 @@
       </v-list>
     </v-navigation-drawer>
 
+    <!-- Fenêtre mot de passe -->
     <v-dialog
       v-model="dialog"
     >
@@ -97,6 +98,7 @@
     },
 
     data: () => ({
+      ip: document.URL,
       dialog: false,
       show: true,
       active: [false, false, false, false],
@@ -134,7 +136,7 @@
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-        fetch("http://localhost:3000", {
+        fetch(this.ip, {
           method: 'post',
           headers,
           body: JSON.stringify(data_to_send)

@@ -24,21 +24,25 @@
 
 <script>
   export default {
-    data: () => ({
-      pwd: "",
-      valid: true,
-      show: true,
-      rules: {
-        required: show => !!show || "requis",
-        password: value => {
-          const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/;
-          return (
-            pattern.test(value) ||
-            "Minimum 8 caractères avec au moins une majuscule, minuscule et un nombre"
-          );
+    props: ['ip'],
+    data: function(){
+      return {
+        ipAd:this.ip,
+        pwd: "",
+        valid: true,
+        show: true,
+        rules: {
+          required: show => !!show || "requis",
+          password: value => {
+            const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/;
+            return (
+              pattern.test(value) ||
+              "Minimum 8 caractères avec au moins une majuscule, minuscule et un nombre"
+            );
+          }
         }
       }
-    }),
+    },
     methods: {
       setPassword() {
         if(this.valid){
@@ -49,7 +53,7 @@
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               }
-          fetch("http://localhost:3000", {
+          fetch(this.ipAd, {
             method: 'post',
             headers,
             body: JSON.stringify(data_to_send)
