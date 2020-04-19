@@ -149,7 +149,7 @@
         .then(res=> res.json())
         .then(data => {
           if(data[1] === null){
-            this.configuration = "Aucune (Veuillez sélectionnez une configuration)";
+            this.configuration = "Aucune (Veuillez sélectionner une configuration)";
           }
           else{
             this.configuration = data[1].nom;
