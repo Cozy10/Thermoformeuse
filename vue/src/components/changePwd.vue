@@ -37,7 +37,7 @@
             const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/;
             return (
               pattern.test(value) ||
-              "Minimum 8 caractères avec au moins une majuscule, minuscule et un nombre"
+              "Minimum 8 caractères avec au moins une majuscule, minuscule et un chiffre"
             );
           }
         }
